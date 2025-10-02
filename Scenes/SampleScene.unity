@@ -424,7 +424,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.74, y: 2.02, z: -10}
+  m_LocalPosition: {x: 2.5, y: 3, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -589,12 +589,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 589171396}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.78, y: 6.33, z: 0}
-  m_LocalScale: {x: 0.9999999, y: 0.9999999, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.5, y: -0.27, z: 0}
+  m_LocalScale: {x: 0.24999997, y: 0.3333333, z: 0.33333334}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1708704048}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &619394800
 GameObject:
@@ -863,7 +863,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1196845593}
-  - component: {fileID: 1196845592}
+  - component: {fileID: 1196845594}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -871,29 +871,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1196845592
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1196845591}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c03764d2afaa3144998e2e8f8ce13919, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  width: 7
-  height: 6
-  cellSize: 0.6
-  gemDatas:
-  - {fileID: 11400000, guid: 96ce1c0f37b747c41844487b6e149354, type: 2}
-  - {fileID: 11400000, guid: 2ddecd7bc6ae251468bbe4d4e324bc52, type: 2}
-  - {fileID: 11400000, guid: b66db7081a34af545bf09a3ddd04ecb7, type: 2}
-  - {fileID: 11400000, guid: 0694a64f26d708f468df2141815149f1, type: 2}
-  - {fileID: 11400000, guid: bddacbce966b9bf4a9098285e323549e, type: 2}
-  - {fileID: 11400000, guid: 6b3a64efe7bc815449a80f232e7ce6ff, type: 2}
-  gemPrefab: {fileID: 5043999965646228794, guid: f6ae00235de1dc3448796200f696df40, type: 3}
 --- !u!4 &1196845593
 Transform:
   m_ObjectHideFlags: 0
@@ -909,6 +886,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1196845594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1196845591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 368b821cd73cffa4ea8bbef11f2616f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  width: 10
+  height: 10
+  cellSize: 0.6
+  gemDatas:
+  - {fileID: 11400000, guid: 96ce1c0f37b747c41844487b6e149354, type: 2}
+  - {fileID: 11400000, guid: 2ddecd7bc6ae251468bbe4d4e324bc52, type: 2}
+  - {fileID: 11400000, guid: b66db7081a34af545bf09a3ddd04ecb7, type: 2}
+  - {fileID: 11400000, guid: 0694a64f26d708f468df2141815149f1, type: 2}
+  - {fileID: 11400000, guid: bddacbce966b9bf4a9098285e323549e, type: 2}
+  - {fileID: 11400000, guid: 6b3a64efe7bc815449a80f232e7ce6ff, type: 2}
+  gemPrefab: {fileID: 5043999965646228794, guid: f6ae00235de1dc3448796200f696df40, type: 3}
 --- !u!1 &1411399447
 GameObject:
   m_ObjectHideFlags: 0
@@ -1077,13 +1077,14 @@ Transform:
   m_GameObject: {fileID: 1708704046}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.72, y: 7.06, z: 0}
+  m_LocalPosition: {x: 2.69, y: 8.07, z: 0}
   m_LocalScale: {x: 4, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1044456527}
   - {fileID: 256129567}
   - {fileID: 1957213077}
+  - {fileID: 589171398}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1957213075
@@ -1203,7 +1204,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -2.27, y: 1.0086067, z: -0.172243}
-  m_LocalScale: {x: 20, y: 1.5, z: 1}
+  m_LocalScale: {x: 70, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2120155399}
@@ -1305,4 +1306,3 @@ SceneRoots:
   - {fileID: 1196845593}
   - {fileID: 1708704048}
   - {fileID: 564519577}
-  - {fileID: 589171398}
