@@ -6,6 +6,7 @@ namespace CandyProject
     public class GemData : ScriptableObject
     {
         public string gemName;
+
         public Sprite gemIcon;
 
         public int scoreValue = 10;
