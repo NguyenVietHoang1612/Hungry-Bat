@@ -16,6 +16,8 @@ namespace CandyProject
 
         [SerializeField] private Gem selectedGem;
 
+
+        [SerializeField] float timeMove = 0.1f;
         private void OnEnable()
         {
             if (inputActions == null)
@@ -57,7 +59,7 @@ namespace CandyProject
                 
                 if (gem != null)
                 {
-                    Debug.Log("Hit " + gem.GemName);
+                    Debug.Log("Hit " + gem.TypeOfGem);
                     selectedGem = gem;
                     mouseDownPos = mousePos;
                     isDragging = true;
@@ -76,7 +78,7 @@ namespace CandyProject
             if (dragDir.magnitude > dragThreshold)
             {
                 Vector2Int moveDir = GetMoveDirection(dragDir);
-                TrySwap(selectedGem, moveDir);
+                BoardManager.Instance.TrySwap(selectedGem, moveDir, timeMove);
             }
 
             isDragging = false;
@@ -85,23 +87,13 @@ namespace CandyProject
 
         private Vector2Int GetMoveDirection(Vector2 dragDir)
         {
+            // Tìm hướng kéo 
             if (Mathf.Abs(dragDir.x) > Mathf.Abs(dragDir.y))
                 return dragDir.x > 0 ? Vector2Int.right : Vector2Int.left;
             else
                 return dragDir.y > 0 ? Vector2Int.up : Vector2Int.down;
         }
 
-        private void TrySwap(Gem gem, Vector2Int dir)
-        {
-            Vector2 targetPos = gem.gridPos + dir;
-
-            Debug.Log("gem pos " + gem.gridPos + " target: " + targetPos);
-
-            if (targetPos.x >= 0 || targetPos.x < BoardManager.Instance.GetWidth() ||
-                targetPos.y >= 0 || targetPos.y < BoardManager.Instance.GetHeight())
-            {
-                BoardManager.Instance.SwapGem(gem.gridPos, targetPos);
-            }
-        }
+        
     }
 }

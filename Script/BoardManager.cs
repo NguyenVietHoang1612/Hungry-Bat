@@ -1,25 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-
 
 namespace CandyProject
 {
     public class BoardManager : Singleton<BoardManager>
     {
         [SerializeField] private int width;
-
         [SerializeField] private int height;
-
         [SerializeField] private float cellSize = 0.6f;
 
         [SerializeField] private GemData[] gemDatas;
-        public GameObject gemPrefab;
-        [SerializeField] private Gem[,] gems;
+        [SerializeField] private GameObject gemPrefab;
 
-        private bool[,] visited;
-
-
-        private int[,] directions = new int[,] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+        private Gem[,] gems;
 
         private void Start()
         {
@@ -34,111 +28,212 @@ namespace CandyProject
             {
                 for (int y = 0; y < height; y++)
                 {
-                    // Spawn object
-                    Vector2 worldPos = new Vector2(x, y) * cellSize;
-                    SpawnGem(worldPos);
+                    SpawnGem(new Vector2Int(x, y));
                 }
             }
         }
 
-        public void Update()
+        private void SpawnGem(Vector2Int gridPos)
         {
-            FindMatches();
-        }
-
-
-        private void SpawnGem(Vector2 gridPos)
-        {
+            Vector2 worldPos = (Vector2)gridPos * cellSize;
             GemData randomGem = gemDatas[Random.Range(0, gemDatas.Length)];
 
-            Transform gemTranform = Instantiate(gemPrefab, gridPos, Quaternion.identity).transform;
+            Transform gemTransform = Instantiate(gemPrefab, worldPos, Quaternion.identity).transform;
+            gemTransform.SetParent(this.transform);
 
-            Gem gem = gemTranform.GetComponent<Gem>();
-
+            Gem gem = gemTransform.GetComponent<Gem>();
             gem.Init(randomGem);
+            gem.gridPos = gridPos;
 
-            gemTranform.SetParent(this.transform);
-            Vector2 posGemWorld = gridPos / cellSize;
-            gems[Mathf.RoundToInt(posGemWorld.x), Mathf.RoundToInt(posGemWorld.y)] = gem;
-            gem.gridPos = new Vector2(posGemWorld.x, posGemWorld.y);
+            gems[gridPos.x, gridPos.y] = gem;
         }
 
-        public void SwapGem(Vector2 posA, Vector2 posB)
+
+        #region Swap
+        public void TrySwap(Gem gem, Vector2Int dir, float timeReturn)
         {
-            int xPosA = (int)(posA.x);
-            int yPosA = (int)(posA.y);
+            Vector2Int targetPos = gem.gridPos + dir;
 
-            Gem gemA = gems[xPosA, yPosA];
+            if (targetPos.x < 0 || targetPos.x >= width || targetPos.y < 0 || targetPos.y >= height)
+                return;
 
-            int xPosB = (int)(posB.x);
-            int yPosB = (int)(posB.y);
+            Gem targetGem = gems[targetPos.x, targetPos.y];
 
-            Gem gemB = gems[xPosB, yPosB];
+            if (targetGem == null) return;
 
-            gems[xPosA, yPosA] = gemB;
-            gems[xPosB, yPosB] = gemA;
+            SwapGem(gem.gridPos, targetPos);
+            StartCoroutine(CheckSwapResult(gem, targetGem, timeReturn));
+        }
+
+        
+
+        public void SwapGem(Vector2Int posA, Vector2Int posB)
+        {
+            // Swap aray gem
+
+            Gem gemA = gems[posA.x, posA.y];
+            Gem gemB = gems[posB.x, posB.y];
+
+            gems[posA.x, posA.y] = gemB;
+            gems[posB.x, posB.y] = gemA;
+
+            Vector2Int temp = gemA.gridPos;
+            gemA.gridPos = gemB.gridPos;
+            gemB.gridPos = temp;
 
             gemA.MoveTo(posB);
             gemB.MoveTo(posA);
         }
 
+        private IEnumerator CheckSwapResult(Gem gemA, Gem gemB, float timeReturn)
+        {
+            yield return new WaitForSeconds(0.1f);
+
+            FindMatches();
+
+            bool hasMatch = gems[gemA.gridPos.x, gemA.gridPos.y].isMatch ||
+                            gems[gemB.gridPos.x, gemB.gridPos.y].isMatch;
+
+            if (!hasMatch)
+            {
+                yield return new WaitForSeconds(timeReturn);
+                SwapGem(gemA.gridPos, gemB.gridPos);
+            }
+            else
+            {
+                yield return new WaitForSeconds(0.1f);
+                ClearMatchedGems();
+                Debug.Log("Match found!");
+            }
+        }
+        #endregion Swap
+
+        #region Find Matches
         public void FindMatches()
         {
-            if (gems.Length <= 0) return;
-
-            visited = new bool[width, height];
-
-            for (int row = 0; row < width; row++)
+            // Reset flag match
+            for (int x = 0; x < width; x++)
             {
-                for (int col = 0; col < height; col++)
+                for (int y = 0; y < height; y++)
                 {
-                    if (!visited[row,col])
-                    {
-                        List<Vector2Int> connected = new List<Vector2Int>();
-                        DFS(row, col, gems[row, col].GemName, connected);
-                        if (connected.Count >= 3)
-                    {
-                        Debug.Log($"Match found! Size: {connected.Count}");
+                    if (gems[x, y] != null)
+                        gems[x, y].isMatch = false;
+                }
+            }
 
-                        // Đánh dấu để phá
-                        foreach (var pos in connected)
+            HashSet<Vector2Int> matches = new HashSet<Vector2Int>();
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Gem currentGem = gems[x, y];
+                    if (currentGem == null) continue;
+
+                    var gemType = currentGem.TypeOfGem;
+
+                    // Kiểm tra hàng ngang
+                    if (x < width - 2 &&
+                        gems[x + 1, y] != null && gems[x + 2, y] != null &&
+                        gems[x + 1, y].TypeOfGem == gemType &&
+                        gems[x + 2, y].TypeOfGem == gemType)
+                    {
+                        int endCol = x + 2;
+                        while (endCol + 1 < width &&
+                               gems[endCol + 1, y] != null &&
+                               gems[endCol + 1, y].TypeOfGem == gemType)
                         {
-                            // Ví dụ set = -1 nghĩa là sẽ bị phá
-                            gems[pos.x, pos.y].isMatch = true;
+                            endCol++;
                         }
+
+                        for (int i = x; i <= endCol; i++)
+                            matches.Add(new Vector2Int(i, y));
                     }
+
+                    // Kiểm tra hàng dọc
+                    if (y < height - 2 &&
+                        gems[x, y + 1] != null && gems[x, y + 2] != null &&
+                        gems[x, y + 1].TypeOfGem == gemType &&
+                        gems[x, y + 2].TypeOfGem == gemType)
+                    {
+                        int endRow = y + 2;
+                        while (endRow + 1 < height &&
+                               gems[x, endRow + 1] != null &&
+                               gems[x, endRow + 1].TypeOfGem == gemType)
+                        {
+                            endRow++;
+                        }
+
+                        for (int i = y; i <= endRow; i++)
+                            matches.Add(new Vector2Int(x, i));
                     }
                 }
             }
 
-
-        }
-
-        public void DFS(int row, int col, string gemName, List<Vector2Int> connected)
-        {
-            if (row >= width || col >= height || row < 0 || col < 0) return;
-            if (visited[row, col]) return;
-            if (gems[row, col].GemName != gemName) return;
-
-            visited[row, col] = true;
-
-            connected.Add(new Vector2Int(row, col));
-
-            for (int i = 0; i < 4; i++)
+            if (matches.Count > 0)
             {
-                int nRow = row + directions[i, 0];
-                int nCol = col + directions[i, 1];
-                DFS(nRow, nCol, gemName, connected);
+                foreach (var pos in matches)
+                {
+                    gems[pos.x, pos.y].isMatch = true;
+                    ClearMatchedGems();
+                }
             }
 
-
+            
         }
 
+        public void ClearMatchedGems()
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (gems[x, y] != null && gems[x,y].isMatch)
+                    {
+                        gems[x, y].PlayDestroyEffect();
+                        
+                    }
+                }
+            }
+            StartCoroutine(DropDownGems());
+        }
+
+
+        private IEnumerator DropDownGems()
+        {
+            yield return new WaitForSeconds(0.1f); 
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (gems[x, y] == null)
+                    {
+                        for (int aboveY = y + 1; aboveY < height; aboveY++)
+                        {
+                            if (gems[x, aboveY] != null)
+                            {
+                                gems[x, y] = gems[x, aboveY];
+                                gems[x, aboveY] = null;
+
+                                gems[x, y].gridPos = new Vector2Int(x, y);
+                                gems[x, y].MoveTo(new Vector2Int(x, y));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            yield return new WaitForSeconds(0.2f);
+            FindMatches();
+        }
+        #endregion
+
+
+        // -------------------- GETTERS --------------------
         public int GetWidth() => width;
-
-        public int GetHeight() => height;   
-
+        public int GetHeight() => height;
         public float GetCellSize() => cellSize;
     }
 }
-

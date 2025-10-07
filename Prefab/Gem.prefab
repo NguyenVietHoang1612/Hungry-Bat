@@ -105,6 +105,8 @@ MonoBehaviour:
   gemData: {fileID: 0}
   spriteRenderer: {fileID: 6393350092627712756}
   gridPos: {x: 0, y: 0}
+  destroyEffect: {fileID: 3290879970009674361, guid: f4f22f7bed44e2f4abeb41e8a2af3af6, type: 3}
+  isMatch: 0
   moveSpeed: 10
 --- !u!61 &6751260778406691749
 BoxCollider2D:

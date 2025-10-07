@@ -7,9 +7,22 @@ namespace CandyProject
     {
         public string gemName;
 
+        public GemType gemType;
+
         public Sprite gemIcon;
 
         public int scoreValue = 10;
+    }
+
+    public enum GemType
+    {
+        Red,
+        Blue,
+        Green,
+        Yellow,
+        white,
+        Purple,
+        Orange
     }
 }
 

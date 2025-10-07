@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: SP_Gem_Purple
   m_EditorClassIdentifier: 
   gemName: SP_Gem_Purple
+  gemType: 5
   gemIcon: {fileID: 21300000, guid: 41be04b31a12e3f4fac211722a6b6513, type: 3}
   scoreValue: 14

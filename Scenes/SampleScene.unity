@@ -166,6 +166,7 @@ MonoBehaviour:
   mouseDownPos: {x: 0, y: 0}
   WorldPos: {x: 0, y: 0}
   selectedGem: {fileID: 0}
+  timeMove: 0.1
 --- !u!1 &256129566
 GameObject:
   m_ObjectHideFlags: 0
