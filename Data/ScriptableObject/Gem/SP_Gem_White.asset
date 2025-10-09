@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 479e3a24d4f25b3478068099800041ea, type: 3}
+  m_Name: SP_Gem_White
+  m_EditorClassIdentifier: 
+  gemName: SP_Gem_White
+  gemType: 4
+  spriteAtlas: {fileID: 100100200, guid: 4f134f9d49e86b54dacc816f9f8cb8d0, type: 3}
+  spriteName: SP_Gem_White
+  scoreValue: 18
+  destroyEffect: {fileID: 3290879970009674361, guid: f4f22f7bed44e2f4abeb41e8a2af3af6, type: 3}
+  destroySound: {fileID: 0}

@@ -60,6 +60,7 @@ namespace CandyProject
                 if (gem != null)
                 {
                     Debug.Log("Hit " + gem.TypeOfGem);
+                    gem.SetColorGemSelected();
                     selectedGem = gem;
                     mouseDownPos = mousePos;
                     isDragging = true;
@@ -71,7 +72,7 @@ namespace CandyProject
         private void OnClickUp(InputAction.CallbackContext ctx)
         {
             if (!isDragging || selectedGem == null) return;
-
+            selectedGem.ResetColor();
             Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(inputActions.UI.Point.ReadValue<Vector2>());
             Vector2 dragDir = mouseWorld - mouseDownPos;
 

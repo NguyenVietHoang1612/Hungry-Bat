@@ -11,14 +11,13 @@ GameObject:
   - component: {fileID: 2109753279916522937}
   - component: {fileID: 2882104959695099432}
   - component: {fileID: 6751260778406691749}
-  - component: {fileID: 965815907359574289}
   m_Layer: 10
-  m_Name: Gem
+  m_Name: BoardTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 1
 --- !u!4 &2109753279916522937
 Transform:
   m_ObjectHideFlags: 0
@@ -77,7 +76,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
+  m_SortingOrder: 3
   m_Sprite: {fileID: -1039917297, guid: a9c8cfc3870a27845a9cb541600ec23b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -135,20 +134,3 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &965815907359574289
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5043999965646228794}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 553efa5a77bff6641bc730e3d7bb653f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gemData: {fileID: 0}
-  spriteRenderer: {fileID: 2882104959695099432}
-  gridPos: {x: 0, y: 0}
-  isMatch: 0
-  moveSpeed: 10

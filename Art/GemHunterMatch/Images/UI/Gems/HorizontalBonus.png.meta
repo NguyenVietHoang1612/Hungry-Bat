@@ -1,12 +1,5 @@
 fileFormatVersion: 2
-guid: 8ede225d5857bc147950445f1be8d25c
-AssetOrigin:
-  serializedVersion: 1
-  productId: 278941
-  packageName: Gem Hunter Match - 2D Sample Project
-  packageVersion: 1.6
-  assetPath: Assets/GemHunterMatch/Images/UI/Bonus/VerticalBonus.png
-  uploadId: 699660
+guid: f6c5575798468874f82d8043e3267498
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}

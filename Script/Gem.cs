@@ -9,17 +9,25 @@ namespace CandyProject
         [SerializeField] private SpriteRenderer spriteRenderer;
 
         public Vector2Int gridPos;
-        [SerializeField] private GameObject destroyEffect;
+
         [Header("Flags")]
         public bool isMatch = false;
 
         [SerializeField] private float moveSpeed = 5f;
 
+        private void Start()
+        {
+            if (gemData != null && gemData.destroyEffect != null)
+                ObjectPoolManager.Instance.CreatePool(gemData.destroyEffect, 3);
+        }
+
         public void Init(GemData data)
         {
             gemData = data;
-            spriteRenderer.sprite = gemData.gemIcon;
+            spriteRenderer.sprite = gemData.GetSprite();
             spriteRenderer.color = Color.white;
+            name = data.gemName;
+            isMatch = false;
         }
 
         public void MoveTo(Vector2Int targetPos)
@@ -42,21 +50,41 @@ namespace CandyProject
 
         public void PlayDestroyEffect()
         {
-            if (destroyEffect != null)
-            {
-                GameObject fx = Instantiate(destroyEffect, transform.position, Quaternion.identity);
+            if (gemData != null && gemData.destroyEffect == null) return;
 
-                Destroy(fx, 0.5f);
-            }
-            DestroyGem();
+            GameObject fx = ObjectPoolManager.Instance.Get(gemData.destroyEffect);
+            fx.transform.position = transform.position;
+            fx.transform.rotation = Quaternion.identity;
+            StartCoroutine(ReturnEffectToPool(fx, 0.2f));
         }
 
-        private void DestroyGem()
+        private IEnumerator ReturnEffectToPool(GameObject fx, float delay)
         {
-            Destroy(gameObject);
-            Debug.Log("Gem destroyed");
+            yield return new WaitForSeconds(delay);
+            ObjectPoolManager.Instance.Return(gemData.destroyEffect, fx);
+        }
+
+        public void ReturnPoolGem(GameObject prefab)
+        {
+            ObjectPoolManager.Instance.Return(prefab, gameObject);
+        }
+
+        public void SetColorGemSelected()
+        {
+            Color color = spriteRenderer.color;
+            color.a = 0.7f;
+            spriteRenderer.color = color;
+        }
+
+        public void ResetColor()
+        {
+            Color color = spriteRenderer.color;
+            color.a = 1f;
+            spriteRenderer.color = color;
         }
 
         public GemType TypeOfGem => gemData.gemType;
+        public GemData GetGemData => gemData;
+
     }
 }
