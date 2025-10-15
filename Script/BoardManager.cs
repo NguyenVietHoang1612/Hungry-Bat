@@ -21,23 +21,26 @@ namespace CandyProject
         [Header("Match Info")]
         [SerializeField] private List<MatchInfo> matchInfos;
 
+        private bool[,] visited;
+
 
         private void Start()
         {
             gems = new Gem[width, height];
             int initialSizeBoard = width * height;
             ObjectPoolManager.Instance.CreatePool(gemPrefab, initialSizeBoard);
+            ObjectPoolManager.Instance.CreatePool(boardTile, initialSizeBoard);
             GenerateBoard();
         }
 
         private void GenerateBoard()
         {
+            SpawnBoardTile();
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
                     SpawnGem(new Vector2Int(x, y));
-                    SpawnBoardTile();
                     while (MatchesAt(x, y, gems[x, y]))
                     {
                         gems[x, y].ReturnPoolGem(gemPrefab);
@@ -54,15 +57,33 @@ namespace CandyProject
                 for (int y = 0; y < height; y++)
                 {
                     Vector2 worldPos = new Vector2(x, y) * cellSize;
-                    Instantiate(boardTile, worldPos, Quaternion.identity, transform);
+                    GameObject obj = ObjectPoolManager.Instance.Get(boardTile);
+                    obj.transform.position = worldPos;
+                    obj.transform.rotation = Quaternion.identity;
                 }
             }
         }
 
+        private int NumSpecials()
+        {
+            int count = 0;
+            foreach (var gem in gemDatas)
+            {
+                if (gem != null && gem.IsBoom)
+                {
+                    count++;
+                }
+            }
+
+            int numSpecials = gemDatas.Length - count;
+            return numSpecials;
+        }
+
         private void SpawnGem(Vector2Int gridPos)
         {
+
             Vector2 worldPos = (Vector2)gridPos * cellSize;
-            GemData randomGem = gemDatas[Random.Range(0, gemDatas.Length - 2)];
+            GemData randomGem = gemDatas[Random.Range(0, gemDatas.Length - NumSpecials())];
 
             Gem gem = CreateGem(worldPos, randomGem);
             gem.gridPos = gridPos;
@@ -73,22 +94,6 @@ namespace CandyProject
 
 
         #region Swap
-        public void TrySwap(Gem gem, Vector2Int dir, float timeReturn)
-        {
-            Vector2Int targetPos = gem.gridPos + dir;
-
-            if (targetPos.x < 0 || targetPos.x >= width || targetPos.y < 0 || targetPos.y >= height)
-                return;
-
-            Gem targetGem = gems[targetPos.x, targetPos.y];
-
-            if (targetGem == null) return;
-
-            SwapGem(gem.gridPos, targetPos);
-            StartCoroutine(CheckSwapResult(gem, targetGem, timeReturn));
-        }
-
-
 
         public void SwapGem(Vector2Int posA, Vector2Int posB)
         {
@@ -107,9 +112,41 @@ namespace CandyProject
             gemB.MoveTo(posA);
         }
 
+        public void TrySwap(Gem gem, Vector2Int dir, float timeReturn)
+        {
+            Vector2Int targetPos = gem.gridPos + dir;
+
+            if (targetPos.x < 0 || targetPos.x >= width || targetPos.y < 0 || targetPos.y >= height)
+                return;
+
+            Gem targetGem = gems[targetPos.x, targetPos.y];
+
+            if (targetGem == null) return;
+
+            SwapGem(gem.gridPos, targetPos);
+            StartCoroutine(CheckSwapResult(gem, targetGem, timeReturn));
+        }
+
         private IEnumerator CheckSwapResult(Gem gemA, Gem gemB, float timeReturn)
         {
             yield return new WaitForSeconds(0.1f);
+
+            if (gemA.GetGemData.IsBoom && gemB.GetGemData.IsBoom)
+            {
+                TriggerBoom(gemA);
+                TriggerBoom(gemB);
+                yield break;
+            }
+            else if (gemA.GetGemData.gemType == GemType.ArrowHorizontal || gemA.GetGemData.gemType == GemType.ArrowVertical)
+            {
+                TriggerBoom(gemA);
+                yield break;
+            }
+            else if (gemB.GetGemData.gemType == GemType.ArrowHorizontal || gemB.GetGemData.gemType == GemType.ArrowVertical)
+            {
+                TriggerBoom(gemB);
+                yield break;
+            }
 
             FindMatches();
 
@@ -131,6 +168,24 @@ namespace CandyProject
                 }
             }
         }
+
+        //Trigger Boom
+
+        private void TriggerBoom(Gem boomGem)
+        {
+            Vector2Int gridPos = boomGem.gridPos;
+            if (boomGem.TypeOfGem == GemType.ArrowVertical)
+            {
+                GetColumnPieces(gridPos.x);
+
+            }
+            else if (boomGem.TypeOfGem == GemType.ArrowHorizontal)
+            {
+                GetRowPieces(gridPos.y);
+            }
+            ClearMatchedGems();
+
+        }
         #endregion Swap
 
         #region Find Matches
@@ -146,10 +201,11 @@ namespace CandyProject
                 }
             }
 
-            HashSet<Vector2Int> matches = new HashSet<Vector2Int>();
+            List<Vector2Int> matches = new List<Vector2Int>();
 
             // Lưu trữ thông tin về loại match
             matchInfos = new List<MatchInfo>();
+            visited = new bool[width, height];
 
             for (int x = 0; x < width; x++)
             {
@@ -165,29 +221,22 @@ namespace CandyProject
                     int countHorizontal = 1;
                     for (int col = x + 1; col < width && gems[col, y] != null && gems[col, y].TypeOfGem == gemType; col++)
                     {
-                        countHorizontal++;
+                        countHorizontal += CheckVisitedGem(col, y, gemType);
                     }
 
+                    Debug.Log("Count Horizontal: " + countHorizontal);
                     if (countHorizontal >= 3)
                     {
                         for (int i = 0; i < countHorizontal; i++)
                         {
                             matches.Add(new Vector2Int(x + i, y));
 
-                            //if (gems[x + i, y].TypeOfGem == GemType.ArrowHorizontal)
-                            //{
-                            //    matches.UnionWith(GetRowPieces(y));
-                            //}
-                            //else if (gems[x + i, y].TypeOfGem == GemType.ArrowVertical)
-                            //{
-                            //    matches.UnionWith(GetColumnPieces(x + i));
-                            //}
                         }
 
                         if (countHorizontal == 4)
                         {
                             Vector2Int center = new Vector2Int(x + 1, y);
-                            matchInfos.Add(new MatchInfo(center, MatchType.FourHorizontal));
+                            matchInfos.Add(new MatchInfo(center, MatchType.FourVertical));
                         }
                         else if (countHorizontal >= 5)
                         {
@@ -196,14 +245,23 @@ namespace CandyProject
                         }
 
                     }
+                }
+            }
+            visited = new bool[width, height];
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    currentGem = gems[x, y];
 
+                    if (currentGem == null) continue;
+
+                    var gemType = currentGem.TypeOfGem;
                     // Kiểm tra hàng hàng
                     int countVertical = 1;
                     for (int row = y + 1; row < height && gems[x, row] != null && gems[x, row].TypeOfGem == gemType; row++)
                     {
-                        countVertical++;
-
-                        
+                        countVertical += CheckVisitedGem(x, row, gemType);
                     }
 
                     if (countVertical >= 3)
@@ -211,20 +269,11 @@ namespace CandyProject
                         for (int i = 0; i < countVertical; i++)
                         {
                             matches.Add(new Vector2Int(x, y + i));
-
-                            //if (gems[x, y + i].TypeOfGem == GemType.ArrowVertical)
-                            //{
-                            //    matches.UnionWith(GetColumnPieces(x));
-                            //}
-                            //else if (gems[x, y + i].TypeOfGem == GemType.ArrowVertical)
-                            //{
-                            //    matches.UnionWith(GetRowPieces(y + i));
-                            //}
                         }
                         if (countVertical == 4)
                         {
                             Vector2Int center = new Vector2Int(x, y + 1);
-                            matchInfos.Add(new MatchInfo(center, MatchType.FourVertical));
+                            matchInfos.Add(new MatchInfo(center, MatchType.FourHorizontal));
                         }
                         else if (countVertical >= 5)
                         {
@@ -253,6 +302,20 @@ namespace CandyProject
 
         }
 
+        private int CheckVisitedGem(int x, int y, GemType gemType)
+        {
+            if (visited[x, y]) return 0;
+
+            if (x < 0 || y < 0 || x >= width || y >= height) return 0;
+
+            if (gems[x, y] == null || gems[x, y].TypeOfGem != gemType)
+                return 0;
+
+            visited[x, y] = true;
+
+            return 1;
+        }
+
         private IEnumerator CreateBooms(List<MatchInfo> matchInfos)
         {
             yield return new WaitForSeconds(0.1f);
@@ -262,6 +325,8 @@ namespace CandyProject
                 Vector2Int centerPos = matchInfo.center;
                 Debug.Log("Creating booms tiep");
 
+                if (centerPos.x < 0 || centerPos.x >= width || centerPos.y < 0 || centerPos.y >= height)
+                    continue;
 
                 Gem baseGem = gems[centerPos.x, centerPos.y];
                 Vector2 worldPos = (Vector2)centerPos * cellSize;
@@ -283,6 +348,7 @@ namespace CandyProject
 
                     case MatchType.Five:
                         Debug.Log("Creating booms 5");
+                        boomData = gemDatas.FirstOrDefault(g => g.gemType == GemType.BoomColor);
                         break;
 
                     default:
@@ -296,11 +362,16 @@ namespace CandyProject
                     continue;
                 }
 
+                if (baseGem != null)
+                {
+                    baseGem.ReturnPoolGem(gemPrefab);
+                    gems[centerPos.x, centerPos.y] = null;
+                }
+
                 Gem boomGem = CreateGem(worldPos, boomData);
+                boomGem.isMatch = false;
                 boomGem.gridPos = centerPos;
                 gems[centerPos.x, centerPos.y] = boomGem;
-
-                //boomGem.PlaySpawnEffect();
             }
         }
 
@@ -374,6 +445,8 @@ namespace CandyProject
                         gems[x, y].ReturnPoolGem(gemPrefab);
                         gems[x, y] = null;
                     }
+
+
                 }
             }
             StartCoroutine(DropDownGems());
@@ -421,10 +494,10 @@ namespace CandyProject
                     if (gems[x, y] == null)
                     {
                         Vector2Int spawnPos = new Vector2Int(x, y);
-                        Vector2 worldPos = new Vector2(x, height + 1) * cellSize; 
+                        Vector2 worldPos = new Vector2(x, height + 1) * cellSize;
 
 
-                        GemData randomGem = gemDatas[Random.Range(0, gemDatas.Length - 2)];
+                        GemData randomGem = gemDatas[Random.Range(0, gemDatas.Length - NumSpecials())];
                         Gem newGem = CreateGem(worldPos, randomGem);
                         newGem.Init(randomGem);
                         newGem.gridPos = spawnPos;
@@ -435,7 +508,7 @@ namespace CandyProject
                 }
             }
 
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.3f);
             FindMatches();
         }
 
@@ -445,25 +518,24 @@ namespace CandyProject
 
 
         // -------------------- GETTERS --------------------
-        public HashSet<Vector2Int> GetRowPieces(int row)
+        public List<Vector2Int> GetRowPieces(int row)
         {
-            HashSet<Vector2Int> rowGems = new HashSet<Vector2Int>();
+            List<Vector2Int> rowGems = new List<Vector2Int>();
             for (int x = 0; x < width; x++)
             {
-                gems[x, row].isMatch = true;
                 rowGems.Add(new Vector2Int(x, row));
+                gems[x, row].isMatch = true;
             }
             return rowGems;
         }
 
-        public HashSet<Vector2Int> GetColumnPieces(int column)
+        public List<Vector2Int> GetColumnPieces(int column)
         {
-            HashSet<Vector2Int> columnGems = new HashSet<Vector2Int>();
+            List<Vector2Int> columnGems = new List<Vector2Int>();
             for (int y = 0; y < height; y++)
             {
-                gems[column, y].isMatch = true;
                 columnGems.Add(new Vector2Int(column, y));
-
+                gems[column, y].isMatch = true;
             }
             return columnGems;
         }

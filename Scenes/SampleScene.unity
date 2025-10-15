@@ -1002,6 +1002,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6b3a64efe7bc815449a80f232e7ce6ff, type: 2}
   - {fileID: 11400000, guid: 80b0eee4581ea3b44afc1eff17902154, type: 2}
   - {fileID: 11400000, guid: 9825c3e75c688a140ab02e360117cd60, type: 2}
+  - {fileID: 11400000, guid: 5924d87f3e896c74aa3481d35b5d34e0, type: 2}
   gemPrefab: {fileID: 5043999965646228794, guid: f6ae00235de1dc3448796200f696df40, type: 3}
   boardTile: {fileID: 5043999965646228794, guid: 38e50d1873bc2da429b280fbc7af5e9c, type: 3}
   currentGem: {fileID: 0}

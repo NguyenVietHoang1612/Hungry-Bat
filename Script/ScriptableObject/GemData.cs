@@ -19,7 +19,7 @@ namespace CandyProject
 
         public AudioClip destroySound;
 
-        public bool IsBoom => gemType == GemType.ArrowHorizontal || gemType == GemType.ArrowVertical;
+        public bool IsBoom => gemType == GemType.ArrowHorizontal || gemType == GemType.ArrowVertical || gemType == GemType.BoomColor;
         public Sprite GetSprite()
         {
             if (spriteAtlas != null && !string.IsNullOrEmpty(spriteName))
@@ -42,7 +42,8 @@ namespace CandyProject
         Purple,
         Orange,
         ArrowHorizontal,
-        ArrowVertical
+        ArrowVertical,
+        BoomColor
     }
 }
 

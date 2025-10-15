@@ -50,18 +50,18 @@ namespace CandyProject
 
         public void PlayDestroyEffect()
         {
-            if (gemData != null && gemData.destroyEffect == null) return;
+            if (gemData == null || gemData.destroyEffect == null) return;
 
             GameObject fx = ObjectPoolManager.Instance.Get(gemData.destroyEffect);
             fx.transform.position = transform.position;
             fx.transform.rotation = Quaternion.identity;
-            StartCoroutine(ReturnEffectToPool(fx, 0.2f));
+            BoardManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 10f));
         }
 
-        private IEnumerator ReturnEffectToPool(GameObject fx, float delay)
+        private IEnumerator ReturnEffectToPoolRoutine(GameObject fx, GameObject prefab, float delay)
         {
             yield return new WaitForSeconds(delay);
-            ObjectPoolManager.Instance.Return(gemData.destroyEffect, fx);
+            ObjectPoolManager.Instance.Return(prefab, fx);
         }
 
         public void ReturnPoolGem(GameObject prefab)
