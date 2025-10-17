@@ -144,11 +144,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 5043999965646228794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 553efa5a77bff6641bc730e3d7bb653f, type: 3}
+  m_Script: {fileID: 11500000, guid: d5ef64c341b594f44be7aec784ba6711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gemData: {fileID: 0}
   spriteRenderer: {fileID: 2882104959695099432}
   gridPos: {x: 0, y: 0}
+  aGravity: -150
+  bounce: 0.2
+  grounded: 0
   isMatch: 0
-  moveSpeed: 10
+  moveSpeed: 0.1

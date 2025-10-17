@@ -10,10 +10,14 @@ namespace CandyProject
 
         public Vector2Int gridPos;
 
+        [SerializeField] float aGravity = -20f;
+        [SerializeField] float bounce = 0.2f;
+
         [Header("Flags")]
+        public bool grounded = false;
         public bool isMatch = false;
 
-        [SerializeField] private float moveSpeed = 5f;
+        [SerializeField] private float moveSpeed = 0.1f;
 
         private void Start()
         {
@@ -39,14 +43,61 @@ namespace CandyProject
 
         private IEnumerator MoveCoroutine(Vector2Int targetPos)
         {
-            Vector3 target = new Vector3(targetPos.x, targetPos.y, 0) * BoardManager.Instance.GetCellSize();
+            Vector3 target = new Vector3(targetPos.x, targetPos.y, 0) * BoardManager.Instance.CellSize;
             while (Vector3.Distance(transform.position, target) > 0.01f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed);
                 yield return null;
             }
             transform.position = target;
         }
+
+        public void MoveGravityTo(Vector2Int targetPos)
+        {
+            gridPos = targetPos;
+            grounded = false;
+            StopAllCoroutines();
+            StartCoroutine(MoveCoroutineGravity(targetPos));
+        }
+
+        private IEnumerator MoveCoroutineGravity(Vector2Int targetPos)
+        {
+            Vector3 target = new Vector3(targetPos.x, targetPos.y, 0) * BoardManager.Instance.CellSize;
+            Vector3 velocity = Vector3.zero;
+            
+
+            Vector3 pos = transform.position;
+
+            while (!grounded)
+            {
+                velocity.y += aGravity * Time.deltaTime;
+
+                pos += velocity * Time.deltaTime;
+
+                if (pos.y <= target.y)
+                {
+                    pos.y = target.y;
+
+                    // Nảy nhẹ
+                    if (Mathf.Abs(velocity.y) > 1f)
+                    {
+                        velocity.y = -velocity.y * bounce;
+                    }
+                    else
+                    {
+                        grounded = true;
+                        pos = target;
+                    }
+                }
+
+                transform.position = pos;
+                yield return null;
+            }
+
+            transform.position = target;
+        }
+
+
 
         public void PlayDestroyEffect()
         {
