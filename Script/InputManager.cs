@@ -59,7 +59,6 @@ namespace CandyProject
                 
                 if (gem != null)
                 {
-                    Debug.Log("Hit " + gem.TypeOfGem);
                     gem.SetColorGemSelected();
                     selectedGem = gem;
                     mouseDownPos = mousePos;

@@ -17,6 +17,7 @@ namespace CandyProject
 
         [Header("Runtime Data")]
         public Gem[,] gems;
+        public List<Vector2Int> matches;
 
         // Subsystems
         private BoardGenerator boardGenerator;
@@ -58,7 +59,7 @@ namespace CandyProject
             int count = 0;
             foreach (var gem in GemDatas)
             {
-                if (gem != null && !gem.IsBoom)
+                if (gem != null && gem.IsBoom)
                 {
                     count++;
                 }
@@ -81,13 +82,16 @@ namespace CandyProject
             swapSystem.TrySwap(gem, dir, timeReturn);
 
         public void FindMatches() =>
-            matchFinder.FindMatches();
+            matchFinder.FindMatchGems();
 
         public void ClearMatchedGems() =>
             refillSystem.ClearMatchedGems();
 
+        public void TriggerSwapBoom(Gem gemA, Gem gemB) =>
+            boomHandler.TriggerSwapBoom(gemA, gemB);
+
         public void TriggerBoom(Gem gem) =>
             boomHandler.TriggerBoom(gem);
-
+            
     }
 }

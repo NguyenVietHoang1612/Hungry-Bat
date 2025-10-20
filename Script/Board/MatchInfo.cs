@@ -9,7 +9,7 @@ namespace CandyProject
         FourHorizontal,
         FourVertical,
         Five,
-        Special
+        boomWrapped,
     }
     public class MatchInfo
     {

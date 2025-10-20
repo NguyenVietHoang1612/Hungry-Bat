@@ -26,32 +26,31 @@ namespace CandyProject
                         board.gems[x, y] = null;
                     }
                 }
+
+
             }
+
             board.StartCoroutine(DropDownGems());
         }
 
         // Rơi gem xuống ô trống
         private IEnumerator DropDownGems()
         {
-            yield return new WaitForSeconds(0.25f);
-
+            yield return new WaitForSeconds(0.2f);
             for (int x = 0; x < board.Width; x++)
             {
                 int emptyY = -1;
-
                 for (int y = 0; y < board.Height; y++)
                 {
-                    if (board.gems[x, y] == null && emptyY == -1)
+                    if (board.gems[x, y] == null)
                     {
-                        emptyY = y;
+                        if (emptyY == -1) emptyY = y;
                     }
-                    else if (board.gems[x, y] != null && emptyY != -1)
+                    else if (emptyY != -1)
                     {
+                        board.gems[x, y].MoveGravityTo(new Vector2Int(x, emptyY));
                         board.gems[x, emptyY] = board.gems[x, y];
                         board.gems[x, y] = null;
-
-                        board.gems[x, emptyY].gridPos = new Vector2Int(x, emptyY);
-                        board.gems[x, emptyY].MoveTo(new Vector2Int(x, emptyY));
                         emptyY++;
                     }
                 }
@@ -95,11 +94,11 @@ namespace CandyProject
                 }
                 if (anySpawned)
                 {
-                    yield return new WaitForSeconds(0.2f);
+                    yield return new WaitForSeconds(0.1f);
                 }
             }
 
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(0.2f);
             board.FindMatches();
         }
 

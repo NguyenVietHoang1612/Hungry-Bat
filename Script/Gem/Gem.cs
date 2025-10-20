@@ -106,7 +106,7 @@ namespace CandyProject
             GameObject fx = ObjectPoolManager.Instance.Get(gemData.destroyEffect);
             fx.transform.position = transform.position;
             fx.transform.rotation = Quaternion.identity;
-            BoardManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 10f));
+            BoardManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 0.5f));
         }
 
         private IEnumerator ReturnEffectToPoolRoutine(GameObject fx, GameObject prefab, float delay)

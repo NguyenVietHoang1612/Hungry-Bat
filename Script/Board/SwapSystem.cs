@@ -29,50 +29,42 @@ namespace CandyProject
             return pos.x >= 0 && pos.x < board.Width && pos.y >= 0 && pos.y < board.Height;
         }
 
-        private void SwapGems(Gem a, Gem b)
+       
+        private void SwapGems(Gem gemA, Gem gemB)
         {
-            Vector2Int posA = a.gridPos;
-            Vector2Int posB = b.gridPos;
+            Vector2Int posA = gemA.gridPos;
+            Vector2Int posB = gemB.gridPos;
 
-            board.gems[posA.x, posA.y] = b;
-            board.gems[posB.x, posB.y] = a;
+            gemA.gridPos = posB;
+            gemB.gridPos = posA;
 
-            a.gridPos = posB;
-            b.gridPos = posA;
+            board.gems[posA.x, posA.y] = gemB;
+            board.gems[posB.x, posB.y] = gemA;
 
-            a.MoveTo(posB);
-            b.MoveTo(posA);
+            gemA.MoveTo(posB);
+            gemB.MoveTo(posA);
         }
 
-        private IEnumerator CheckSwapResult(Gem a, Gem b, float timeReturn)
+        // Check swap có match hay là boom không
+        private IEnumerator CheckSwapResult(Gem gemA, Gem gemB, float timeReturn)
         {
             yield return new WaitForSeconds(0.1f);
 
-            // Nếu là boom, xử lý nổ ngay
-            if (a.GetGemData.IsBoom && b.GetGemData.IsBoom && a.TypeOfGem != b.TypeOfGem)
+            if ((gemA.GetGemData.IsBoom || gemB.GetGemData.IsBoom))
             {
-                board.TriggerBoom(a);
-                board.TriggerBoom(b);
+                board.FindMatches();
+                board.TriggerSwapBoom(gemA, gemB);
                 yield break;
             }
-            else if (a.GetGemData.IsBoom)
-            {
-                board.TriggerBoom(a);
-                yield break;
-            }
-            else if (b.GetGemData.IsBoom)
-            {
-                board.TriggerBoom(b);
-                yield break;
-            }
+           
 
             board.FindMatches();
 
-            bool hasMatch = a.isMatch || b.isMatch;
+            bool hasMatch = gemA.isMatch || gemB.isMatch;
             if (!hasMatch)
             {
                 yield return new WaitForSeconds(timeReturn);
-                SwapGems(a, b);
+                SwapGems(gemA, gemB);
             }
             else
             {
