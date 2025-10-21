@@ -59,7 +59,7 @@ namespace CandyProject
             int count = 0;
             foreach (var gem in GemDatas)
             {
-                if (gem != null && gem.IsBoom)
+                if (gem != null && !gem.IsBoom)
                 {
                     count++;
                 }
@@ -76,7 +76,29 @@ namespace CandyProject
         public GameObject GemPrefab => gemPrefab;
         public GameObject BoardTile => boardTile;
 
-        
+
+        public GemType GetRandomGemType()
+        {
+            List<Gem> validGems = new List<Gem>();
+
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    Gem g = gems[x, y];
+                    if (g != null && !g.GetGemData.IsBoom)
+                    {
+                        validGems.Add(g);
+                    }
+                }
+            }
+
+            if (validGems.Count == 0)
+                return GemType.Red; // fallback
+
+            int randomIndex = Random.Range(0, validGems.Count);
+            return validGems[randomIndex].TypeOfGem;
+        }
 
         public void TrySwap(Gem gem, Vector2Int dir, float timeReturn) =>
             swapSystem.TrySwap(gem, dir, timeReturn);

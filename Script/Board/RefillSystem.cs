@@ -29,7 +29,7 @@ namespace CandyProject
 
 
             }
-
+            
             board.StartCoroutine(DropDownGems());
         }
 
@@ -44,6 +44,7 @@ namespace CandyProject
                 {
                     if (board.gems[x, y] == null)
                     {
+                        Debug.LogWarning("DropDownPlay");
                         if (emptyY == -1) emptyY = y;
                     }
                     else if (emptyY != -1)
@@ -98,7 +99,7 @@ namespace CandyProject
                 }
             }
 
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.3f);
             board.FindMatches();
         }
 

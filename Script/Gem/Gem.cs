@@ -19,6 +19,9 @@ namespace CandyProject
 
         [SerializeField] private float moveSpeed = 0.1f;
 
+        [Header("Coroutine")]
+        private Coroutine moveRoutine;
+        private Coroutine gravityRoutine;
         private void Start()
         {
             if (gemData != null && gemData.destroyEffect != null)
@@ -36,8 +39,9 @@ namespace CandyProject
 
         public void MoveTo(Vector2Int targetPos)
         {
-            gridPos = targetPos;
+            Debug.LogWarning("MoveTo");
             StopAllCoroutines();
+            gridPos = targetPos;
             StartCoroutine(MoveCoroutine(targetPos));
         }
 
@@ -54,6 +58,7 @@ namespace CandyProject
 
         public void MoveGravityTo(Vector2Int targetPos)
         {
+
             gridPos = targetPos;
             grounded = false;
             StopAllCoroutines();
@@ -106,7 +111,7 @@ namespace CandyProject
             GameObject fx = ObjectPoolManager.Instance.Get(gemData.destroyEffect);
             fx.transform.position = transform.position;
             fx.transform.rotation = Quaternion.identity;
-            BoardManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 0.5f));
+            BoardManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 0.3f));
         }
 
         private IEnumerator ReturnEffectToPoolRoutine(GameObject fx, GameObject prefab, float delay)

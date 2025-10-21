@@ -108,7 +108,7 @@ namespace CandyProject
             }
             else if (count == 4)
             {
-                Vector2Int centerPos = chain[count / 2];
+                Vector2Int centerPos = chain[count/ 2];
                 MatchType type = (direction == Vector2Int.right)
                     ? MatchType.FourVertical
                     : MatchType.FourHorizontal;
@@ -127,7 +127,23 @@ namespace CandyProject
             foreach (Vector2Int pos in board.matches)
                 board.gems[pos.x, pos.y].isMatch = true;
 
-            if (board.matches.Count >= 5 && (horizontalCount > 0 && horizontalCount < 5 ) && (verticalCount > 0 && verticalCount < 5))
+            bool isSameTypemMatched = false;
+            for (int i = 0; i < board.matches.Count - 1; i++)
+            {
+                Vector2Int currentPosMatch = board.matches[i];
+                Vector2Int nextPosMatch = board.matches[i + 1];
+
+                
+                if (board.gems[currentPosMatch.x, currentPosMatch.y].TypeOfGem == board.gems[nextPosMatch.x, nextPosMatch.y].TypeOfGem)
+                {
+                    isSameTypemMatched = true;
+                    continue; 
+                }
+                isSameTypemMatched = false;
+                break;
+            }
+
+            if (board.matches.Count >= 5 && (horizontalCount > 0 && horizontalCount < 5 ) && (verticalCount > 0 && verticalCount < 5) && isSameTypemMatched)
             {
                 matchInfos.Clear();
                 Vector2Int center = board.matches[board.matches.Count / 2];

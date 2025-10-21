@@ -9,6 +9,7 @@ namespace CandyProject
     public class BoomHandler
     {
         private BoardManager board;
+        private HashSet<Vector2Int> visitedBooms = new HashSet<Vector2Int>();
 
         public BoomHandler(BoardManager board)
         {
@@ -73,6 +74,8 @@ namespace CandyProject
         // Trigger boom khi swap gem
         public void TriggerSwapBoom(Gem gemA, Gem gemB)
         {
+            visitedBooms.Clear();
+
             if (gemA.TypeOfGem == GemType.BoomColor && gemB.TypeOfGem == GemType.BoomColor)
             {
                 Debug.Log("All gem Match");
@@ -130,6 +133,8 @@ namespace CandyProject
 
         public void TriggerBoom(Gem gemA)
         {
+            visitedBooms.Clear();
+
             switch (gemA.TypeOfGem)
             {
                 case GemType.ArrowHorizontal:
@@ -152,8 +157,14 @@ namespace CandyProject
 
         private void GetRow(int row)
         {
+
             for (int x = 0; x < board.Width; x++)
             {
+                Vector2Int pos = board.gems[x, row].gridPos;
+                if (visitedBooms.Contains(pos)) continue;
+
+                visitedBooms.Add(pos);
+
                 if (board.gems[x, row] != null)
                 {
                     board.gems[x, row].isMatch = true;
@@ -169,7 +180,8 @@ namespace CandyProject
                 }
                 else if (board.gems[x, row] != null && board.gems[x, row].isMatch && board.gems[x, row].TypeOfGem == GemType.BoomColor)
                 {
-                    // Xử lý khi hàng có boom color
+                    GemType typeOfGem = board.GetRandomGemType();
+                    GetAllSameType(typeOfGem);
                 }
 
             }
@@ -179,6 +191,11 @@ namespace CandyProject
         {
             for (int y = 0; y < board.Height; y++)
             {
+                Vector2Int pos = new Vector2Int(column, y);
+                if (visitedBooms.Contains(pos)) continue;
+
+                visitedBooms.Add(pos);
+
                 if (board.gems[column, y] != null)
                 {
                     board.gems[column, y].isMatch = true;
@@ -194,7 +211,8 @@ namespace CandyProject
                 }
                 else if (board.gems[column, y] != null && board.gems[column, y].isMatch && board.gems[column, y].TypeOfGem == GemType.BoomColor)
                 {
-                    // Xử lý khi hàng có boom color
+                    GemType typeOfGem = board.GetRandomGemType();
+                    GetAllSameType(typeOfGem);
                 }
             }
         }
@@ -217,15 +235,20 @@ namespace CandyProject
         private void GetArroundGem(Gem gem)
         {
             Vector2Int pos = gem.gridPos;
-            for (int x = pos.x - 1; x < pos.x + 1; x++)
+            for (int x = pos.x - 2; x <= pos.x + 2; x++)
             {
-                for (int y = pos.x - 1; y < pos.y + 1; y++)
+                for (int y = pos.y - 2; y <= pos.y + 2; y++)
                 {
                     
                     if (x < 0 || y < 0 || x >= board.Width || y >= board.Height)
                     {
                         continue;
                     }
+
+                    Vector2Int posVisited = new Vector2Int(x, y);
+                    if (visitedBooms.Contains(posVisited)) continue;
+
+                    visitedBooms.Add(posVisited);
 
                     if (board.gems[x, y] != null)
                     {
@@ -242,7 +265,8 @@ namespace CandyProject
                     }
                     else if (board.gems[x, y] != null && board.gems[x, y].isMatch && board.gems[x, y].TypeOfGem == GemType.BoomColor)
                     {
-                        // Xử lý khi hàng có boom color
+                        GemType typeOfGem = board.GetRandomGemType();
+                        GetAllSameType(typeOfGem);
                     }
                 }
             }

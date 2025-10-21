@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using UnityEngine;
 
 namespace CandyProject
@@ -21,6 +22,7 @@ namespace CandyProject
             if (targetGem == null) return;
 
             SwapGems(gem, targetGem);
+            board.StopAllCoroutines();
             board.StartCoroutine(CheckSwapResult(gem, targetGem, timeReturn));
         }
 
@@ -64,11 +66,13 @@ namespace CandyProject
             if (!hasMatch)
             {
                 yield return new WaitForSeconds(timeReturn);
+                UnityEngine.Debug.Log("Swap lại");
                 SwapGems(gemA, gemB);
             }
             else
             {
                 yield return new WaitForSeconds(0.1f);
+                UnityEngine.Debug.Log("Không");
                 board.ClearMatchedGems();
             }
         }
