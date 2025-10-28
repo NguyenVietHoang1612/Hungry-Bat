@@ -1,8 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CandyProject
 {
+    public enum TileType
+    {
+        BlankSpace,
+        Breakable,
+        none
+    }
+
+    [Serializable]
+    public class TileKind
+    {
+        public int posX;
+        public int posY;
+        public TileType tileType;
+    }
+
     public class BoardManager : Singleton<BoardManager>
     {
         [Header("Board Settings")]
@@ -14,10 +30,14 @@ namespace CandyProject
         [SerializeField] private GemData[] gemDatas;
         [SerializeField] private GameObject gemPrefab;
         [SerializeField] private GameObject boardTile;
+        [SerializeField] private GameObject bonusGemPrefab;
+
 
         [Header("Runtime Data")]
         public Gem[,] gems;
         public List<Vector2Int> matches;
+        
+       
 
         // Subsystems
         private BoardGenerator boardGenerator;
@@ -25,6 +45,11 @@ namespace CandyProject
         private MatchFinder matchFinder;
         private BoomHandler boomHandler;
         private RefillSystem refillSystem;
+
+        [Header("Tile Gem Bonus")]
+        public bool[,] obstacle;
+        public TileKind[] tileKinds;
+        public BonusGem[,] bonusGem;
 
         private void Start()
         {
@@ -35,15 +60,33 @@ namespace CandyProject
             refillSystem = new RefillSystem(this);
 
             gems = new Gem[width, height];
+            obstacle = new bool[width, height];
+            bonusGem = new BonusGem[width, height];
+            for (int i = 0; i < obstacle.GetLength(0); i++)
+            {
+                for (int j = 0; j < obstacle.GetLength(1); j++)
+                {
+                    obstacle[i, j] = false;
+                }
+            }
+         
             int initialSize = width * height;
 
             ObjectPoolManager.Instance.CreatePool(gemPrefab, initialSize);
             ObjectPoolManager.Instance.CreatePool(boardTile, initialSize);
+            ObjectPoolManager.Instance.CreatePool(bonusGemPrefab, initialSize);
+
 
             boardGenerator.GenerateBoard();
+
+            if (CheckDeadLock)
+            {
+                Debug.Log("Deadlock detected! Shuffling the board...");
+                boardGenerator.ShuffleBoard();
+            }
         }
 
-        // Khởi tạo sinh gem
+        // Sinh gem
         public Gem CreateGem(Vector2 worldPos, GemData gemData)
         {
             GameObject obj = ObjectPoolManager.Instance.Get(GemPrefab);
@@ -75,6 +118,7 @@ namespace CandyProject
         public GemData[] GemDatas => gemDatas;
         public GameObject GemPrefab => gemPrefab;
         public GameObject BoardTile => boardTile;
+        public GameObject BonusGemPrefab => bonusGemPrefab;
 
 
         public GemType GetRandomGemType()
@@ -94,14 +138,17 @@ namespace CandyProject
             }
 
             if (validGems.Count == 0)
-                return GemType.Red; // fallback
+                return GemType.Red; 
 
-            int randomIndex = Random.Range(0, validGems.Count);
+            int randomIndex = UnityEngine.Random.Range(0, validGems.Count);
             return validGems[randomIndex].TypeOfGem;
         }
 
         public void TrySwap(Gem gem, Vector2Int dir, float timeReturn) =>
             swapSystem.TrySwap(gem, dir, timeReturn);
+
+        public void SwapGem(Gem gemA, Gem gemB) =>
+            swapSystem.SwapGems(gemA, gemB);
 
         public void FindMatches() =>
             matchFinder.FindMatchGems();
@@ -114,6 +161,17 @@ namespace CandyProject
 
         public void TriggerBoom(Gem gem) =>
             boomHandler.TriggerBoom(gem);
-            
+
+        public bool CheckDeadLock =>
+            swapSystem.IsDeadlock();
+
+        public void ShuffleBoard() =>
+            boardGenerator.ShuffleBoard();
+
+        [SerializeField] bool testDebugDeadlock = false;
+        private void Update()
+        {
+           testDebugDeadlock = CheckDeadLock;
+        }
     }
 }

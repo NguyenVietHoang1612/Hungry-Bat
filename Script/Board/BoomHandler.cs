@@ -160,6 +160,9 @@ namespace CandyProject
 
             for (int x = 0; x < board.Width; x++)
             {
+                if (board.gems[x, row] == null) continue;
+
+
                 Vector2Int pos = board.gems[x, row].gridPos;
                 if (visitedBooms.Contains(pos)) continue;
 
@@ -191,6 +194,8 @@ namespace CandyProject
         {
             for (int y = 0; y < board.Height; y++)
             {
+                if (board.gems[column, y] == null) continue;
+
                 Vector2Int pos = new Vector2Int(column, y);
                 if (visitedBooms.Contains(pos)) continue;
 
@@ -235,9 +240,9 @@ namespace CandyProject
         private void GetArroundGem(Gem gem)
         {
             Vector2Int pos = gem.gridPos;
-            for (int x = pos.x - 2; x <= pos.x + 2; x++)
+            for (int x = pos.x - 1; x <= pos.x + 1; x++)
             {
-                for (int y = pos.y - 2; y <= pos.y + 2; y++)
+                for (int y = pos.y - 1; y <= pos.y + 1; y++)
                 {
                     
                     if (x < 0 || y < 0 || x >= board.Width || y >= board.Height)

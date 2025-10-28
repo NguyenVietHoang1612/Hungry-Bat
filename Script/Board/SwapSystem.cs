@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Diagnostics;
 using UnityEngine;
 
 namespace CandyProject
@@ -22,7 +21,6 @@ namespace CandyProject
             if (targetGem == null) return;
 
             SwapGems(gem, targetGem);
-            board.StopAllCoroutines();
             board.StartCoroutine(CheckSwapResult(gem, targetGem, timeReturn));
         }
 
@@ -31,8 +29,8 @@ namespace CandyProject
             return pos.x >= 0 && pos.x < board.Width && pos.y >= 0 && pos.y < board.Height;
         }
 
-       
-        private void SwapGems(Gem gemA, Gem gemB)
+
+        public void SwapGems(Gem gemA, Gem gemB)
         {
             Vector2Int posA = gemA.gridPos;
             Vector2Int posB = gemB.gridPos;
@@ -58,7 +56,7 @@ namespace CandyProject
                 board.TriggerSwapBoom(gemA, gemB);
                 yield break;
             }
-           
+
 
             board.FindMatches();
 
@@ -66,15 +64,116 @@ namespace CandyProject
             if (!hasMatch)
             {
                 yield return new WaitForSeconds(timeReturn);
-                UnityEngine.Debug.Log("Swap lại");
                 SwapGems(gemA, gemB);
             }
             else
             {
                 yield return new WaitForSeconds(0.1f);
-                UnityEngine.Debug.Log("Không");
                 board.ClearMatchedGems();
             }
         }
+
+
+        #region Detecting Deadlock
+        private void SwapPiecesDeadlock(int column, int row, Vector2 Direction)
+        {
+            Vector2Int targetPos = new Vector2Int(column + (int)Direction.x, row + (int)Direction.y);
+            Gem targetGem = board.gems[targetPos.x, targetPos.y];
+
+            board.gems[targetPos.x, targetPos.y] = board.gems[column, row];
+
+            board.gems[column, row] = targetGem;
+        }
+
+        private bool CheckForMatches()
+        {
+            int width = board.Width;
+            int height = board.Height;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (x < width - 2)
+                    {
+                        if (board.gems[x, y] != null && board.gems[x + 1, y] != null && board.gems[x + 2, y] != null)
+                        {
+                            if (board.gems[x, y].TypeOfGem == board.gems[x + 1, y].TypeOfGem && board.gems[x, y].TypeOfGem == board.gems[x + 2, y].TypeOfGem)
+                                return true;
+                        }
+                    }
+
+                    if (y < height - 2)
+                    {
+                        if (board.gems[x, y] != null && board.gems[x, y + 1] != null && board.gems[x, y + 2] != null)
+                        {
+                            if (board.gems[x, y].TypeOfGem == board.gems[x, y + 1].TypeOfGem && board.gems[x, y].TypeOfGem == board.gems[x, y + 2].TypeOfGem)
+                            {
+                                return true;
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool SwitchAndCheck(int column, int row, Vector2 direction)
+        {
+            SwapPiecesDeadlock(column, row, direction);
+
+            if (CheckForMatches())
+            {
+                SwapPiecesDeadlock(column, row, direction);
+
+                return true;
+            }
+            SwapPiecesDeadlock(column, row, direction);
+            return false;
+        }
+
+
+        public bool IsDeadlock()
+        {
+            int width = board.Width;
+            int height = board.Height;
+
+            int totalGems = 0;
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (board.gems[x, y] != null) totalGems++;
+
+                    if (board.gems[x, y] == null)
+                        return false;
+
+                    if (board.gems[x, y] != null)
+                    {
+                        if (x < width - 1)
+                        {
+                            if (SwitchAndCheck(x, y, Vector2.right))
+                            {
+                                return false;
+                            }
+                        }
+
+                        if (y < height - 1)
+                        {
+                            if (SwitchAndCheck(x, y, Vector2.up))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            Debug.Log("Tổng số gem sau shuffle: " + totalGems);
+
+            return true;
+        }
+        #endregion
     }
 }

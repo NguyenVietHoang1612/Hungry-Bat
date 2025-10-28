@@ -1,29 +1,25 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace CandyProject
 {
     public class Gem : MonoBehaviour
     {
         [SerializeField] private GemData gemData;
-        [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] protected SpriteRenderer spriteRenderer;
 
+        protected VisualEffect VisualEffect;
         public Vector2Int gridPos;
 
-        [SerializeField] float aGravity = -20f;
-        [SerializeField] float bounce = 0.2f;
-
         [Header("Flags")]
-        public bool grounded = false;
         public bool isMatch = false;
 
-        [SerializeField] private float moveSpeed = 0.1f;
+        [SerializeField] private float moveSpeed = 6f;
 
-        [Header("Coroutine")]
-        private Coroutine moveRoutine;
-        private Coroutine gravityRoutine;
         private void Start()
         {
+            
             if (gemData != null && gemData.destroyEffect != null)
                 ObjectPoolManager.Instance.CreatePool(gemData.destroyEffect, 3);
         }
@@ -39,79 +35,39 @@ namespace CandyProject
 
         public void MoveTo(Vector2Int targetPos)
         {
-            Debug.LogWarning("MoveTo");
-            StopAllCoroutines();
             gridPos = targetPos;
             StartCoroutine(MoveCoroutine(targetPos));
         }
 
         private IEnumerator MoveCoroutine(Vector2Int targetPos)
         {
+            Vector3 start = transform.position;
             Vector3 target = new Vector3(targetPos.x, targetPos.y, 0) * BoardManager.Instance.CellSize;
-            while (Vector3.Distance(transform.position, target) > 0.01f)
+
+            float elapsed = 0f;
+            float duration = 1f / moveSpeed;
+
+            while (elapsed < duration)
             {
-                transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed);
-                yield return null;
-            }
-            transform.position = target;
-        }
-
-        public void MoveGravityTo(Vector2Int targetPos)
-        {
-
-            gridPos = targetPos;
-            grounded = false;
-            StopAllCoroutines();
-            StartCoroutine(MoveCoroutineGravity(targetPos));
-        }
-
-        private IEnumerator MoveCoroutineGravity(Vector2Int targetPos)
-        {
-            Vector3 target = new Vector3(targetPos.x, targetPos.y, 0) * BoardManager.Instance.CellSize;
-            Vector3 velocity = Vector3.zero;
-            
-
-            Vector3 pos = transform.position;
-
-            while (!grounded)
-            {
-                velocity.y += aGravity * Time.deltaTime;
-
-                pos += velocity * Time.deltaTime;
-
-                if (pos.y <= target.y)
-                {
-                    pos.y = target.y;
-
-                    // Nảy nhẹ
-                    if (Mathf.Abs(velocity.y) > 1f)
-                    {
-                        velocity.y = -velocity.y * bounce;
-                    }
-                    else
-                    {
-                        grounded = true;
-                        pos = target;
-                    }
-                }
-
-                transform.position = pos;
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                transform.position = Vector3.Lerp(start, target, t);
                 yield return null;
             }
 
             transform.position = target;
         }
-
-
 
         public void PlayDestroyEffect()
         {
             if (gemData == null || gemData.destroyEffect == null) return;
 
             GameObject fx = ObjectPoolManager.Instance.Get(gemData.destroyEffect);
+            VisualEffect = fx.GetComponentInChildren<VisualEffect>();
+            VisualEffect.Play();
             fx.transform.position = transform.position;
             fx.transform.rotation = Quaternion.identity;
-            BoardManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 0.3f));
+            BoardManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 1.3f));
         }
 
         private IEnumerator ReturnEffectToPoolRoutine(GameObject fx, GameObject prefab, float delay)
@@ -122,6 +78,8 @@ namespace CandyProject
 
         public void ReturnPoolGem(GameObject prefab)
         {
+            StopAllCoroutines();
+            Debug.Log("ReturnPoolGem");
             ObjectPoolManager.Instance.Return(prefab, gameObject);
         }
 

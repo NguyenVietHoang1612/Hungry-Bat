@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace CandyProject
@@ -16,9 +15,9 @@ namespace CandyProject
             this.prefab = prefab;
             this.parent = parent;
 
-            for(int i = 0; i <= initialSize; i++)
+            for (int i = 0; i <= initialSize; i++)
             {
-               var obj = GameObject.Instantiate(prefab, parent);
+                var obj = GameObject.Instantiate(prefab, parent);
                 obj.SetActive(false);
                 objects.Enqueue(obj);
 
@@ -36,8 +35,6 @@ namespace CandyProject
             obj.SetActive(true);
 
             return obj;
-
-
         }
 
         public void Return(GameObject obj)
@@ -45,7 +42,6 @@ namespace CandyProject
             objects.Enqueue(obj);
             obj.transform.SetParent(parent);
             obj.SetActive(false);
-
         }
 
         private void AddObjectToPool()

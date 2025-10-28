@@ -20,6 +20,7 @@ namespace CandyProject
 
         public void FindMatchGems()
         {
+            GameManager.Instance.WaitingFindMatch();
             Gem[,] allGems = board.gems;
             int width = board.Width;
             int height = board.Height;
@@ -35,7 +36,15 @@ namespace CandyProject
 
             HandleMatchResults(horizontalCount, verticalCount);
 
-            board.ClearMatchedGems();
+            if (board.matches.Count >= 3)
+            {
+                board.ClearMatchedGems();
+            }
+            else
+            {
+                GameManager.Instance.HandleCanMoveGameState();
+            }
+           
         }
 
 
