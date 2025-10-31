@@ -154,5 +154,8 @@ namespace CandyProject
             yield return new WaitForSeconds(1f);
             ShuffleBoard();
         }
+
+
+        
     }
 }

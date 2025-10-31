@@ -16,6 +16,6 @@ MonoBehaviour:
   gemType: 0
   spriteAtlas: {fileID: 100100200, guid: 4f134f9d49e86b54dacc816f9f8cb8d0, type: 3}
   spriteName: SP_Gem_Red
-  scoreValue: 16
+  scoreValue: 4
   destroyEffect: {fileID: 3290879970009674361, guid: f4f22f7bed44e2f4abeb41e8a2af3af6, type: 3}
   destroySound: {fileID: 0}

@@ -20,7 +20,7 @@ namespace CandyProject
 
         public void FindMatchGems()
         {
-            GameManager.Instance.WaitingFindMatch();
+            GameManager.Instance.HandleWaitingGameState();
             Gem[,] allGems = board.gems;
             int width = board.Width;
             int height = board.Height;

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using NUnit.Framework;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CandyProject
@@ -123,7 +125,6 @@ namespace CandyProject
         private bool SwitchAndCheck(int column, int row, Vector2 direction)
         {
             SwapPiecesDeadlock(column, row, direction);
-
             if (CheckForMatches())
             {
                 SwapPiecesDeadlock(column, row, direction);
@@ -173,6 +174,41 @@ namespace CandyProject
             Debug.Log("Tổng số gem sau shuffle: " + totalGems);
 
             return true;
+        }
+
+        public List<Gem> ListMatches()
+        {
+            int width = board.Width;
+            int height = board.Height;
+
+            List<Gem> canMatches = new List<Gem>();
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+
+                    if (board.gems[x, y] != null)
+                    {
+                        if (x < width - 1)
+                        {
+                            if (SwitchAndCheck(x, y, Vector2.right))
+                            {
+                                canMatches.Add(board.gems[x, y]);
+                            }
+                        }
+
+                        if (y < height - 1)
+                        {
+                            if (SwitchAndCheck(x, y, Vector2.up))
+                            {
+                                canMatches.Add(board.gems[x, y]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return canMatches;
         }
         #endregion
     }

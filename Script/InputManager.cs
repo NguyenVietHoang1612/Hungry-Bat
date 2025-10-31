@@ -18,6 +18,8 @@ namespace CandyProject
 
 
         [SerializeField] float timeMove = 0.1f;
+
+        [SerializeField] HintManager hintManager;
         private void OnEnable()
         {
             if (inputActions == null)
@@ -60,6 +62,7 @@ namespace CandyProject
 
         private void OnClickDown(InputAction.CallbackContext ctx)
         {
+            hintManager.ClearHintMark();
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(
             new Vector3(worldPos.x, worldPos.y, 0));
 

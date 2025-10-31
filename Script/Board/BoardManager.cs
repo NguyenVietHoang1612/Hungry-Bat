@@ -32,14 +32,11 @@ namespace CandyProject
         [SerializeField] private GameObject boardTile;
         [SerializeField] private GameObject bonusGemPrefab;
 
-
         [Header("Runtime Data")]
         public Gem[,] gems;
         public List<Vector2Int> matches;
         
-       
-
-        // Subsystems
+        [Header("Subsystems")]
         private BoardGenerator boardGenerator;
         private SwapSystem swapSystem;
         private MatchFinder matchFinder;
@@ -50,6 +47,9 @@ namespace CandyProject
         public bool[,] obstacle;
         public TileKind[] tileKinds;
         public BonusGem[,] bonusGem;
+
+        [Header("Score Manager")]
+        public ScoreBarController scoreManager;
 
         private void Start()
         {
@@ -75,8 +75,7 @@ namespace CandyProject
             ObjectPoolManager.Instance.CreatePool(gemPrefab, initialSize);
             ObjectPoolManager.Instance.CreatePool(boardTile, initialSize);
             ObjectPoolManager.Instance.CreatePool(bonusGemPrefab, initialSize);
-
-
+            
             boardGenerator.GenerateBoard();
 
             if (CheckDeadLock)
@@ -168,10 +167,7 @@ namespace CandyProject
         public void ShuffleBoard() =>
             boardGenerator.ShuffleBoard();
 
-        [SerializeField] bool testDebugDeadlock = false;
-        private void Update()
-        {
-           testDebugDeadlock = CheckDeadLock;
-        }
+        public List<Gem> ListMatchesSwap() 
+            => swapSystem.ListMatches();
     }
 }

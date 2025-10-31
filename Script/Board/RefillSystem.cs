@@ -25,6 +25,8 @@ namespace CandyProject
                         gem.ReturnPoolGem(board.GemPrefab);
                         board.gems[x, y] = null;
 
+                        board.scoreManager.TakeScore(gem.GetGemData.scoreValue);
+
                         if (board.bonusGem[x, y] != null)
                         {
                             board.bonusGem[x, y].Damage(1);

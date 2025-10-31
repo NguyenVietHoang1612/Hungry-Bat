@@ -36,7 +36,7 @@ namespace CandyProject
             }
         }
 
-        public void WaitingFindMatch()
+        public void HandleWaitingGameState()
         {
             currentState = GameState.Waiting;
             InputManager.Instance.DisableDrag();
