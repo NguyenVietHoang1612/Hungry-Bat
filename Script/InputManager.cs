@@ -62,7 +62,11 @@ namespace CandyProject
 
         private void OnClickDown(InputAction.CallbackContext ctx)
         {
-            hintManager.ClearHintMark();
+            if (hintManager != null)
+            {
+                hintManager.ClearHintMark();
+            }
+            
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(
             new Vector3(worldPos.x, worldPos.y, 0));
 
@@ -94,7 +98,7 @@ namespace CandyProject
             if (dragDir.magnitude > dragThreshold)
             {
                 Vector2Int moveDir = GetMoveDirection(dragDir);
-                BoardManager.Instance.TrySwap(selectedGem, moveDir, timeMove);
+                GameManager.Instance.Board.TrySwap(selectedGem, moveDir, timeMove);
             }
 
             isDragging = false;
@@ -110,6 +114,11 @@ namespace CandyProject
                 return dragDir.y > 0 ? Vector2Int.up : Vector2Int.down;
         }
 
-        
+        public void RegisterHintManager(HintManager hintManager)
+        {
+            this.hintManager = hintManager;
+        }
+
+
     }
 }

@@ -22,10 +22,12 @@ namespace CandyProject
                     if (gem != null && gem.isMatch)
                     {
                         gem.PlayDestroyEffect();
+
+                        board.levelManager.AddScore(gem.GetGemData.scoreValue);
+                        board.levelManager.ReduceGemGoal(gem);
+
                         gem.ReturnPoolGem(board.GemPrefab);
                         board.gems[x, y] = null;
-
-                        board.scoreManager.TakeScore(gem.GetGemData.scoreValue);
 
                         if (board.bonusGem[x, y] != null)
                         {
@@ -85,6 +87,7 @@ namespace CandyProject
             }
         }
 
+        // Rơi chéo
         //private void CollapseDiagonalAndHorizontal(int width, int height)
         //{
         //    for (int x = 0; x < width; x++)
@@ -197,7 +200,24 @@ namespace CandyProject
             }
 
             yield return new WaitForSeconds(0.5f);
-            GameManager.Instance.HandleCanMoveGameState();
+            // Kiểm tra lại lần cuối sau khi refill và match hoàn toàn xong
+            if (board.levelManager.IsLevelComplete())
+            {
+                GameManager.Instance.OnLevelComplete(
+                    board.levelManager.LevelData.levelIndex - 1,
+                    board.levelManager.CurrentScore
+                );
+                board.levelManager.uiAchievedResults.Animator.Play("ShowAchievedResults");
+                Debug.Log("Level Complete!");
+            }
+            else if (!board.levelManager.IsLevelComplete() && board.levelManager.RemainingMoves <= 0)
+            {
+                Debug.Log("You Lose!");
+            }
+            else
+            {
+                GameManager.Instance.HandleCanMoveGameState(); 
+            }
         }
 
 

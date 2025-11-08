@@ -17,6 +17,7 @@ namespace CandyProject
 
         [SerializeField] private float moveSpeed = 6f;
 
+
         private void Start()
         {
             
@@ -42,7 +43,7 @@ namespace CandyProject
         private IEnumerator MoveCoroutine(Vector2Int targetPos)
         {
             Vector3 start = transform.position;
-            Vector3 target = new Vector3(targetPos.x, targetPos.y, 0) * BoardManager.Instance.CellSize;
+            Vector3 target = new Vector3(targetPos.x, targetPos.y, 0) * GameManager.Instance.Board.CellSize;
 
             float elapsed = 0f;
             float duration = 1f / moveSpeed;
@@ -65,9 +66,10 @@ namespace CandyProject
             GameObject fx = ObjectPoolManager.Instance.Get(gemData.destroyEffect);
             VisualEffect = fx.GetComponentInChildren<VisualEffect>();
             VisualEffect.Play();
+            SoundManager.Instance.PlayOneShotSfx(gemData.destroySound);
             fx.transform.position = transform.position;
             fx.transform.rotation = Quaternion.identity;
-            BoardManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 1.3f));
+            GameManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 1.3f));
         }
 
         private IEnumerator ReturnEffectToPoolRoutine(GameObject fx, GameObject prefab, float delay)
@@ -79,7 +81,6 @@ namespace CandyProject
         public void ReturnPoolGem(GameObject prefab)
         {
             StopAllCoroutines();
-            Debug.Log("ReturnPoolGem");
             ObjectPoolManager.Instance.Return(prefab, gameObject);
         }
 

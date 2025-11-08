@@ -19,7 +19,7 @@ namespace CandyProject
         public TileType tileType;
     }
 
-    public class BoardManager : Singleton<BoardManager>
+    public class BoardManager : MonoBehaviour
     {
         [Header("Board Settings")]
         [SerializeField] private int width;
@@ -48,8 +48,8 @@ namespace CandyProject
         public TileKind[] tileKinds;
         public BonusGem[,] bonusGem;
 
-        [Header("Score Manager")]
-        public ScoreBarController scoreManager;
+        [Header("Level Manager")]
+        public LevelManager levelManager;
 
         private void Start()
         {
@@ -59,9 +59,13 @@ namespace CandyProject
             matchFinder = new MatchFinder(this, boomHandler);
             refillSystem = new RefillSystem(this);
 
+            width = levelManager.LevelData.width;
+            height = levelManager.LevelData.height;
+
             gems = new Gem[width, height];
             obstacle = new bool[width, height];
             bonusGem = new BonusGem[width, height];
+
             for (int i = 0; i < obstacle.GetLength(0); i++)
             {
                 for (int j = 0; j < obstacle.GetLength(1); j++)

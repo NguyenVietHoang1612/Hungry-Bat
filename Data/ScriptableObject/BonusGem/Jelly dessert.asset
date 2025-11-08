@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gemName: JellyDessert
   SpritesGear:
-  - {fileID: 21300000, guid: 5174d91eba0e01647a84b1942d5759e2, type: 3}
   - {fileID: 21300000, guid: d88904a9f96d6134db757d93b23ece37, type: 3}
   scoreValue: 30
   destroyEffect: {fileID: 0}

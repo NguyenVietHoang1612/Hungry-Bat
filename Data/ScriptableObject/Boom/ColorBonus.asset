@@ -17,5 +17,5 @@ MonoBehaviour:
   spriteAtlas: {fileID: 100100200, guid: 4f134f9d49e86b54dacc816f9f8cb8d0, type: 3}
   spriteName: ColorBonus
   scoreValue: 30
-  destroyEffect: {fileID: 3893429251188699470, guid: 67bcdad24519aa744a8ad00b970eb511, type: 3}
+  destroyEffect: {fileID: 8664940263705244825, guid: 84eee93d37232844796a483b1af2b079, type: 3}
   destroySound: {fileID: 0}

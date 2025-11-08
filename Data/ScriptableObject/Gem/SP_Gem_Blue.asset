@@ -18,4 +18,4 @@ MonoBehaviour:
   spriteName: SP_Gem_Blue
   scoreValue: 1
   destroyEffect: {fileID: 3290879970009674361, guid: f4f22f7bed44e2f4abeb41e8a2af3af6, type: 3}
-  destroySound: {fileID: 0}
+  destroySound: {fileID: 8300000, guid: a17c77289a0ad9244b0c57a8d0f156cc, type: 3}

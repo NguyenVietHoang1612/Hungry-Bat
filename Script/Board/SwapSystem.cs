@@ -15,7 +15,7 @@ namespace CandyProject
         }
 
         public void TrySwap(Gem gem, Vector2Int dir, float timeReturn)
-        {
+        {       
             Vector2Int targetPos = gem.gridPos + dir;
             if (!IsValid(targetPos)) return;
 
@@ -71,6 +71,7 @@ namespace CandyProject
             else
             {
                 yield return new WaitForSeconds(0.1f);
+                board.levelManager.UseMove();
                 board.ClearMatchedGems();
             }
         }
