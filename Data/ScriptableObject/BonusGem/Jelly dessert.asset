@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: Jelly dessert
   m_EditorClassIdentifier: 
   gemName: JellyDessert
-  SpritesGear:
-  - {fileID: 21300000, guid: d88904a9f96d6134db757d93b23ece37, type: 3}
+  gemType: 0
+  spriteAtlas: {fileID: 0}
+  spriteName: JellyDessert
   scoreValue: 30
   destroyEffect: {fileID: 0}
   destroySound: {fileID: 0}
+  SpritesGear:
+  - {fileID: 21300000, guid: d88904a9f96d6134db757d93b23ece37, type: 3}

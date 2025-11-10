@@ -24,5 +24,15 @@ namespace CandyProject
         {
             musicSource.Stop();
         }
+
+        public void SetMusicVolume(float value)
+        {
+            musicSource.volume = value;
+        }
+
+        public void SetSfxVolume(float value)
+        {
+            sfxSource.volume = value;
+        }
     }
 }

@@ -45,6 +45,7 @@ namespace CandyProject
         ArrowVertical,
         BoomColor,
         BoomWrapped,
+        BonusGem
     }
 }
 

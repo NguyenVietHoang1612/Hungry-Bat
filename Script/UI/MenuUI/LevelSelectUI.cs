@@ -46,7 +46,7 @@ namespace CandyProject
                 ObjectPoolManager.Instance.Return(levelButtonPrefab, child.gameObject);
         }
 
-        public void EnterLevelContainer()
+        private void EnterLevelContainer()
         {
             
             uiContainer.gameObject.SetActive(true);

@@ -203,11 +203,11 @@ namespace CandyProject
             // Kiểm tra lại lần cuối sau khi refill và match hoàn toàn xong
             if (board.levelManager.IsLevelComplete())
             {
-                GameManager.Instance.OnLevelComplete(
+                GameManager.Instance.LevelComplete(
                     board.levelManager.LevelData.levelIndex - 1,
                     board.levelManager.CurrentScore
                 );
-                board.levelManager.uiAchievedResults.Animator.Play("ShowAchievedResults");
+                board.levelManager.uiAchievedResults.ShowAchievedResults();
                 Debug.Log("Level Complete!");
             }
             else if (!board.levelManager.IsLevelComplete() && board.levelManager.RemainingMoves <= 0)

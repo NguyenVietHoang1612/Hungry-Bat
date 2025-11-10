@@ -5,19 +5,29 @@ namespace CandyProject
 {
     public class PlayEffectController : MonoBehaviour
     {
-        [SerializeField] private LevelManager levelManager;
         [SerializeField] private VisualEffect WinVFX;
         [SerializeField] private VisualEffect LoseVFX;
 
-        private void PlayWinEffect()
+        private void Awake()
         {
-            GameManager.Instance.HandleWaitingGameState();
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.RegisterVFXController(this);
+            }
+        }
+        public void PlayWinEffect()
+        {
+ 
             WinVFX.gameObject.SetActive(true);
         }
 
-        private void PlayLoseEffect()
+        public void StopWinEffect()
         {
-            GameManager.Instance.HandleWaitingGameState();
+            WinVFX.gameObject.SetActive(false);
+        }
+
+        public void PlayLoseEffect()
+        {
             LoseVFX.gameObject.SetActive(true);
         }
 

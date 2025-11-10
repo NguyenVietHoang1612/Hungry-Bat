@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 
 namespace CandyProject
 {
@@ -28,6 +30,8 @@ namespace CandyProject
         public GameState CurrentState => currentState;
 
         public BoardManager Board;
+
+        [SerializeField] private PlayEffectController playEffectController;
 
         [SerializeField] AudioClip musicMenu;
         protected override void Awake()
@@ -100,7 +104,9 @@ namespace CandyProject
 
         public void RestartLevel()
         {
+            playEffectController.StopWinEffect();
             StartLevel();
+            HandleCanMoveGameState();
         }
 
         public void StartLevel()
@@ -129,9 +135,17 @@ namespace CandyProject
             levelManager = manager;
         }
 
-        public void OnLevelComplete(int levelIndex, int score)
+        public void LevelComplete(int levelIndex, int score)
         {
-            if (levelIndex < 0 || levelIndex >= levelProgressList.Count) return;
+            playEffectController.PlayWinEffect();
+            HandleWaitingGameState();
+            StartCoroutine(OnLevelComplete(levelIndex, score));
+        }
+
+        private IEnumerator OnLevelComplete(int levelIndex, int score)
+        {
+            yield return new WaitForSeconds(2f);
+            if (levelIndex < 0 || levelIndex >= levelProgressList.Count) yield break;
 
             var progress = levelProgressList[levelIndex];
             progress.bestScore = Mathf.Max(progress.bestScore, score);
@@ -142,6 +156,11 @@ namespace CandyProject
                 levelProgressList[levelIndex + 1].isUnlocked = true;
 
             SaveSystem.SaveProgress(levelProgressList);
+        }
+
+        public void RegisterVFXController(PlayEffectController controller)
+        {
+            playEffectController = controller;
         }
 
         #endregion

@@ -23,12 +23,17 @@ namespace CandyProject
 
         private CanvasGroup canvasGroup;
 
-        [SerializeField] private LevelManager levelManager;
-        public Animator Animator { get; private set; }
+        [SerializeField] private LevelManager levelManager; 
+
+        [SerializeField] private RectTransform panel;
+        [SerializeField] private float duration = 0.5f;
+
+        [SerializeField] private Vector2 endTargetPosition;
+        [SerializeField] private Vector2 startTargetPosition;
+
 
         private void Start()
         {
-            Animator = GetComponentInChildren<Animator>();
             canvasGroup = AchievedResultsContainer.GetComponent<CanvasGroup>();
             levelManager.OnAchievedChanged += UpdateAchirved;
             backToHome.onClick.AddListener(OnBackToMenuClicked);
@@ -75,6 +80,29 @@ namespace CandyProject
                 {
                     Stars[i].color = Color.black;
                 }
+            }   
+        }
+
+        public void MovePanelStart()
+        {
+            StartCoroutine(MovePanel(startTargetPosition));
+        }
+
+        public void MovePanelEnd()
+        {
+            StartCoroutine(MovePanel(endTargetPosition));
+        }
+
+        IEnumerator MovePanel(Vector2 target)
+        {
+            
+            Vector2 start = panel.anchoredPosition;
+            float t = 0;
+            while (t < 1)
+            {
+                t += Time.deltaTime / duration;
+                panel.anchoredPosition = Vector2.Lerp(start, target, t);
+                yield return null;
             }
         }
 
@@ -85,7 +113,7 @@ namespace CandyProject
         private void OnReStartLevelClicked()
         {
             levelManager.Init(levelManager.LevelData);
-            Animator.Play("HideAchievedResults");
+            MovePanelEnd();
             StartCoroutine(WaitResetLevel());
         }
 
@@ -94,6 +122,12 @@ namespace CandyProject
         {
             yield return new WaitForSeconds(1f);
             GameManager.Instance.RestartLevel();
+        }
+
+        public void ShowAchievedResults()
+        {
+            canvasGroup.alpha = 1;
+            MovePanelStart();
         }
     }
 }
