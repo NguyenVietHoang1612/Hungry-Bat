@@ -17,5 +17,5 @@ MonoBehaviour:
   spriteAtlas: {fileID: 100100200, guid: 4f134f9d49e86b54dacc816f9f8cb8d0, type: 3}
   spriteName: VerticalBonus
   scoreValue: 10
-  destroyEffect: {fileID: 2465174129270366692, guid: ccec8ec025fa440449c7cafbd8bc2954, type: 3}
-  destroySound: {fileID: 0}
+  destroyEffect: {fileID: 2465174129270366692, guid: bd8bf1a561d13b74180f9e6f46160f08, type: 3}
+  destroySound: {fileID: 8300000, guid: cbd6e7774d789364090f22bb0271cf88, type: 3}

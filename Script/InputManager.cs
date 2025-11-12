@@ -10,7 +10,7 @@ namespace CandyProject
         [SerializeField] private Vector2 mouseDownPos;
         private bool isDragging;
 
-        [SerializeField] private Vector2 WorldPos;
+        [SerializeField] private Vector2 worldPos;
 
         private float dragThreshold = 0.5f;
 
@@ -18,13 +18,15 @@ namespace CandyProject
 
 
         [SerializeField] float timeMove = 0.1f;
+
+        [SerializeField] HintManager hintManager;
         private void OnEnable()
         {
             if (inputActions == null)
             {
                 inputActions = new InputSystem_Actions();
             }
-            inputActions.UI.Point.performed += ctx => WorldPos = ctx.ReadValue<Vector2>();
+            inputActions.UI.Point.performed += ctx => worldPos = ctx.ReadValue<Vector2>();
 
             inputActions.UI.Click.started += OnClickDown;
             inputActions.UI.Click.canceled += OnClickUp;
@@ -38,7 +40,7 @@ namespace CandyProject
         {
             if (inputActions != null)
             {
-                inputActions.UI.Point.performed -= ctx => WorldPos = ctx.ReadValue<Vector2>();
+                inputActions.UI.Point.performed -= ctx => worldPos = ctx.ReadValue<Vector2>();
 
                 inputActions.UI.Click.started -= OnClickDown;
                 inputActions.UI.Click.canceled -= OnClickUp;
@@ -46,10 +48,27 @@ namespace CandyProject
             }
         }
 
+        public void DisableDrag()
+        {
+            if (inputActions.UI.enabled) 
+                inputActions.UI.Disable();
+        }
+
+        public void EnableDrag()
+        {
+            if (!inputActions.UI.enabled)
+                inputActions.UI.Enable();
+        }
+
         private void OnClickDown(InputAction.CallbackContext ctx)
         {
+            if (hintManager != null)
+            {
+                hintManager.ClearHintMark();
+            }
+            
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(
-            new Vector3(WorldPos.x, WorldPos.y, 0));
+            new Vector3(worldPos.x, worldPos.y, 0));
 
             Collider2D hit = Physics2D.OverlapPoint(mousePos);
 
@@ -71,6 +90,7 @@ namespace CandyProject
         private void OnClickUp(InputAction.CallbackContext ctx)
         {
             if (!isDragging || selectedGem == null) return;
+
             selectedGem.ResetColor();
             Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(inputActions.UI.Point.ReadValue<Vector2>());
             Vector2 dragDir = mouseWorld - mouseDownPos;
@@ -78,7 +98,7 @@ namespace CandyProject
             if (dragDir.magnitude > dragThreshold)
             {
                 Vector2Int moveDir = GetMoveDirection(dragDir);
-                BoardManager.Instance.TrySwap(selectedGem, moveDir, timeMove);
+                GameManager.Instance.Board.TrySwap(selectedGem, moveDir, timeMove);
             }
 
             isDragging = false;
@@ -94,6 +114,11 @@ namespace CandyProject
                 return dragDir.y > 0 ? Vector2Int.up : Vector2Int.down;
         }
 
-        
+        public void RegisterHintManager(HintManager hintManager)
+        {
+            this.hintManager = hintManager;
+        }
+
+
     }
 }

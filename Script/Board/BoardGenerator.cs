@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace CandyProject
 {
     public class BoardGenerator
     {
         private BoardManager board;
-
         public BoardGenerator(BoardManager board)
         {
             this.board = board;
@@ -13,14 +14,21 @@ namespace CandyProject
 
         public void GenerateBoard()
         {
-            SpawnBoardTiles();
-
+            
+            GenerateBlankSpaces();
+            GenerateBreakable();
             for (int x = 0; x < board.Width; x++)
             {
                 for (int y = 0; y < board.Height; y++)
                 {
-                    SpawnGem(new Vector2Int(x, y));
+                    if (board.obstacle[x, y])
+                    {
+                        board.gems[x, y] = null;
+                        continue;
+                    } 
 
+                    SpawnBoardTiles(x, y);
+                    SpawnGem(new Vector2Int(x, y));
                     while (MatchesAt(x, y, board.gems[x, y]))
                     {
                         board.gems[x, y].ReturnPoolGem(board.GemPrefab);
@@ -30,25 +38,47 @@ namespace CandyProject
             }
         }
 
-        private void SpawnBoardTiles()
+        public void GenerateBlankSpaces()
         {
-            for (int x = 0; x < board.Width; x++)
+            foreach (TileKind tileKind in board.tileKinds)
             {
-                for (int y = 0; y < board.Height; y++)
+                if (tileKind.tileType == TileType.BlankSpace)
                 {
-                    Vector2 worldPos = new Vector2(x, y) * board.CellSize;
-                    GameObject tile = ObjectPoolManager.Instance.Get(board.BoardTile);
-                    tile.transform.position = worldPos;
-                    tile.transform.rotation = Quaternion.identity;
+                    board.obstacle[tileKind.posX, tileKind.posY] = true;
                 }
             }
+        }
+
+        public void GenerateBreakable()
+        {
+            foreach (TileKind tileKind in board.tileKinds)
+            {
+                if (tileKind.tileType == TileType.Breakable)
+                {
+                    Vector2 worldPos = new Vector2(tileKind.posX, tileKind.posY) * board.CellSize;
+                    GameObject bonusGem = ObjectPoolManager.Instance.Get(board.BonusGemPrefab);
+                    BonusGem bnGem = bonusGem.GetComponent<BonusGem>();
+                    bonusGem.transform.position = worldPos;
+                    bonusGem.transform.rotation = Quaternion.identity;
+                    board.bonusGem[tileKind.posX, tileKind.posY] = bnGem;
+                }
+            }
+        }
+
+        private void SpawnBoardTiles(int x, int y)
+        {
+            Vector2 worldPos = new Vector2(x, y) * board.CellSize;
+            GameObject tile = ObjectPoolManager.Instance.Get(board.BoardTile);
+            tile.transform.SetParent(board.boardTileTransform);
+            tile.transform.position = worldPos;
+            tile.transform.rotation = Quaternion.identity;
         }
 
         private void SpawnGem(Vector2Int gridPos)
         {
             Vector2 worldPos = (Vector2)gridPos * board.CellSize;
             GemData[] gems = board.GemDatas;
-            GemData randomGem = gems[Random.Range(0, gems.Length - board.NumSpecials())];
+            GemData randomGem = gems[Random.Range(0, gems.Length - 7)];
 
             GameObject obj = ObjectPoolManager.Instance.Get(board.GemPrefab);
             obj.transform.position = worldPos;
@@ -74,5 +104,59 @@ namespace CandyProject
 
             return false;
         }
+
+        public void ShuffleBoard()
+        {
+            List<Gem> newBoard = new List<Gem>();
+            int width = board.Width;
+            int height = board.Height;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (board.gems[x,y] != null && !board.obstacle[x,y])
+                    {
+                        newBoard.Add(board.gems[x, y]);
+                    }
+                }
+            }
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (!board.obstacle[x, y] && board.gems[x, y] != null)
+                    {
+                        int randomGem = Random.Range(0, newBoard.Count);
+
+
+                        while (MatchesAt(x, y, newBoard[randomGem]))
+                        {
+                            
+                            randomGem = Random.Range(0, newBoard.Count);
+                        }
+
+                        Gem gem = newBoard[randomGem];
+                        board.SwapGem(gem, board.gems[x, y]);
+                        newBoard.Remove(gem);
+                    }
+                }
+            }
+
+            if (board.CheckDeadLock)
+            {
+                board.StartCoroutine(WaitShuffleBoard());
+            }
+        }
+
+        private IEnumerator WaitShuffleBoard()
+        {
+            yield return new WaitForSeconds(1f);
+            ShuffleBoard();
+        }
+
+
+        
     }
 }

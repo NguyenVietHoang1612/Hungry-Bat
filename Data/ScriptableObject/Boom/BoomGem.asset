@@ -17,5 +17,5 @@ MonoBehaviour:
   spriteAtlas: {fileID: 100100200, guid: 4f134f9d49e86b54dacc816f9f8cb8d0, type: 3}
   spriteName: LargeBomb
   scoreValue: 10
-  destroyEffect: {fileID: 410749768702137879, guid: 139556ecb17152c4ab373f6aba9c4fc2, type: 3}
-  destroySound: {fileID: 0}
+  destroyEffect: {fileID: 410749768702137879, guid: 6621e8b7940460143b2aa813aa0e2fc0, type: 3}
+  destroySound: {fileID: 8300000, guid: e53c50cdd14c0004f8f381d4a956ab7b, type: 3}
