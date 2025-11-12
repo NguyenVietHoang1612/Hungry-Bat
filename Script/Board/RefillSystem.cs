@@ -23,8 +23,8 @@ namespace CandyProject
                     {
                         gem.PlayDestroyEffect();
 
-                        board.levelManager.AddScore(gem.GetGemData.scoreValue);
-                        board.levelManager.ReduceGemGoal(gem);
+                        board.LevelManager.AddScore(gem.GetGemData.scoreValue);
+                        board.LevelManager.ReduceGemGoal(gem);
 
                         gem.ReturnPoolGem(board.GemPrefab);
                         board.gems[x, y] = null;
@@ -201,16 +201,16 @@ namespace CandyProject
 
             yield return new WaitForSeconds(0.5f);
             // Kiểm tra lại lần cuối sau khi refill và match hoàn toàn xong
-            if (board.levelManager.IsLevelComplete())
+            if (board.LevelManager.IsLevelComplete())
             {
                 GameManager.Instance.LevelComplete(
-                    board.levelManager.LevelData.levelIndex - 1,
-                    board.levelManager.CurrentScore
+                    board.LevelManager.LevelData.levelIndex - 1,
+                    board.LevelManager.CurrentScore
                 );
-                board.levelManager.uiAchievedResults.ShowAchievedResults();
+                board.LevelManager.uiAchievedResults.ShowAchievedResults();
                 Debug.Log("Level Complete!");
             }
-            else if (!board.levelManager.IsLevelComplete() && board.levelManager.RemainingMoves <= 0)
+            else if (!board.LevelManager.IsLevelComplete() && board.LevelManager.RemainingMoves <= 0)
             {
                 Debug.Log("You Lose!");
             }

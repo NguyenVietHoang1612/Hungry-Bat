@@ -71,7 +71,7 @@ namespace CandyProject
             else
             {
                 yield return new WaitForSeconds(0.1f);
-                board.levelManager.UseMove();
+                board.LevelManager.UseMove();
                 board.ClearMatchedGems();
             }
         }

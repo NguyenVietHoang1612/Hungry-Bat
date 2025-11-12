@@ -6,6 +6,9 @@ namespace CandyProject
     {
         [SerializeField] private AudioSource musicSource;
         [SerializeField] private AudioSource sfxSource;
+        public float VolumnMusic { get; private set; }
+        public float VolumnSFX { get; private set; }
+
 
         public void PlayOneShotSfx(AudioClip clip)
         {
@@ -27,12 +30,14 @@ namespace CandyProject
 
         public void SetMusicVolume(float value)
         {
-            musicSource.volume = value;
+            VolumnMusic = value;
+            musicSource.volume = VolumnMusic;
         }
 
-        public void SetSfxVolume(float value)
+        public void SetSFXVolume(float value)
         {
-            sfxSource.volume = value;
+            VolumnSFX = value;
+            sfxSource.volume = VolumnSFX;
         }
     }
 }

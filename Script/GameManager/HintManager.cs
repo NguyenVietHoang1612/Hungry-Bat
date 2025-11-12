@@ -15,6 +15,7 @@ namespace CandyProject
         private Gem currentHint;
         private GameObject currentHintObj;
         private Coroutine hintCoroutine;
+        public bool HintActive { get; private set; } = true;
 
         [SerializeField] LevelManager levelManager;
 
@@ -33,7 +34,7 @@ namespace CandyProject
         private void Update()
         {
             hintTimer -= Time.deltaTime;
-            if (hintTimer <= 0 && currentHint == null && !levelManager.IsLevelComplete())
+            if (hintTimer <= 0 && currentHint == null && !levelManager.IsLevelComplete() && HintActive)
             {
                 HintMark();
             }
@@ -91,6 +92,11 @@ namespace CandyProject
             currentHint = null;
             hintTimer = hintDelay;
             hintCoroutine = null;
+        }
+
+        public void SetHint(bool value)
+        {
+            HintActive = value;
         }
 
         public GameObject HintPrefab => hintEffect;

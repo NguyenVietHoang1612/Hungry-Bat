@@ -35,6 +35,7 @@ namespace CandyProject
         [Header("Runtime Data")]
         public Gem[,] gems;
         public List<Vector2Int> matches;
+        public Transform boardTileTransform;
         
         [Header("Subsystems")]
         private BoardGenerator boardGenerator;
@@ -49,18 +50,20 @@ namespace CandyProject
         public BonusGem[,] bonusGem;
 
         [Header("Level Manager")]
-        public LevelManager levelManager;
+        public LevelManager LevelManager { get; private set; }
 
         private void Start()
         {
+            LevelManager = FindFirstObjectByType<LevelManager>();
+
             boardGenerator = new BoardGenerator(this);
             swapSystem = new SwapSystem(this);
             boomHandler = new BoomHandler(this);
             matchFinder = new MatchFinder(this, boomHandler);
             refillSystem = new RefillSystem(this);
 
-            width = levelManager.LevelData.width;
-            height = levelManager.LevelData.height;
+            width = LevelManager.LevelData.width;
+            height = LevelManager.LevelData.height;
 
             gems = new Gem[width, height];
             obstacle = new bool[width, height];
@@ -73,7 +76,8 @@ namespace CandyProject
                     obstacle[i, j] = false;
                 }
             }
-         
+
+            GameManager.Instance.LoadSettings();
             int initialSize = width * height;
 
             ObjectPoolManager.Instance.CreatePool(gemPrefab, initialSize);
@@ -99,6 +103,39 @@ namespace CandyProject
             gem.Init(gemData);
             return gem;
         }
+
+        public void ClearBoard()
+        {
+            if (gems != null)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    for (int y = 0; y < Height; y++)
+                    {
+                        if (gems[x, y] != null)
+                        {
+                            ObjectPoolManager.Instance.Return(gemPrefab, gems[x, y].gameObject);
+                            gems[x, y] = null;
+                        }
+
+                        if (bonusGem[x, y] != null)
+                        {
+                            ObjectPoolManager.Instance.Return(bonusGemPrefab, bonusGem[x, y].gameObject);
+                            bonusGem[x, y] = null;
+                        }
+                    }
+                }
+            }
+
+            var tiles = GameObject.FindGameObjectsWithTag("BoardTile");
+            foreach (var tile in tiles)
+            {
+                ObjectPoolManager.Instance.Return(boardTile, tile);
+            }
+
+            Debug.Log("Board cleared successfully.");
+        }
+
 
         public int NumSpecials()
         {

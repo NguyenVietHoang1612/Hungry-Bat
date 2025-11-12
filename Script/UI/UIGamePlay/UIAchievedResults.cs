@@ -17,7 +17,6 @@ namespace CandyProject
         [SerializeField] private Image[] Stars;
         [SerializeField] private Button backToHome;
         [SerializeField] private Button nextLevel;
-
         [SerializeField] private Button reStartLevel;
 
 
@@ -38,6 +37,7 @@ namespace CandyProject
             levelManager.OnAchievedChanged += UpdateAchirved;
             backToHome.onClick.AddListener(OnBackToMenuClicked);
             reStartLevel.onClick.AddListener(OnReStartLevelClicked);
+            nextLevel.onClick.AddListener(OnNextLevelClicked);
 
             canvasGroup.alpha = 0;
             levelMap.text = levelManager.LevelData.levelName;
@@ -115,6 +115,11 @@ namespace CandyProject
             levelManager.Init(levelManager.LevelData);
             MovePanelEnd();
             StartCoroutine(WaitResetLevel());
+        }
+
+        private void OnNextLevelClicked()
+        {
+            GameManager.Instance.NextLevel();
         }
 
 

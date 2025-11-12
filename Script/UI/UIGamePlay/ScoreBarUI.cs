@@ -11,9 +11,10 @@ namespace CandyProject
         private List<VisualElement> star;
         private Button settingsButton;
 
+        [SerializeField] private SettingsUI settingsUI;
         [SerializeField] private LevelManager levelManager;
 
-        [SerializeField] private Transform settingPanel;
+        
 
         private void Start()
         {
@@ -25,7 +26,7 @@ namespace CandyProject
 
             Debug.Log(star.Count);
             levelManager.OnScoreChanged += UpdateUI;
-            settingsButton.clicked += OpenSettings;
+            settingsButton.clicked += settingsUI.OpenSettings;
         }
 
         private void UpdateUI(int currentScore, float percent)
@@ -50,15 +51,6 @@ namespace CandyProject
             }
         }
 
-        public void OpenSettings()
-        {
-             settingPanel.gameObject.SetActive(true);
-            GameManager.Instance.HandleWaitingGameState();
-        }
-
-        public void CloseSetting()         {
-            settingPanel.gameObject.SetActive(false);
-            GameManager.Instance.HandleCanMoveGameState();
-        }
+        
     }
 }

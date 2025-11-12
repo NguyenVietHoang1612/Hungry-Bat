@@ -38,6 +38,7 @@ namespace CandyProject
         {
             base.Awake();
             DontDestroyOnLoad(gameObject);
+            LoadSettings();
         }
 
         #region Level Progress
@@ -80,14 +81,32 @@ namespace CandyProject
             currentLevelIndex = Mathf.Clamp(index, 0, allLevelData.Count - 1);
         }
 
+        public void SaveSettings()
+        {
+            SettingsData settingsData = new SettingsData();
+            settingsData.volumeMusic = SoundManager.Instance.VolumnMusic;
+            settingsData.volumeSFX = SoundManager.Instance.VolumnSFX;
+            SaveSystem.SaveSettings(settingsData);
+        }
+
+        public void LoadSettings()
+        {
+            var data = SaveSystem.LoadSetings();
+            if (data == null) return;
+
+            SoundManager.Instance.SetMusicVolume(data.volumeMusic);
+            SoundManager.Instance.SetSFXVolume(data.volumeSFX);
+        }
+
         public void LoadScene()
         {
-            StartCoroutine(FadeController.Instance.FadeOut());
+            
             StartCoroutine(LoadSceneWaitForSecond("SceneGame"));
         }
 
         private IEnumerator LoadSceneWaitForSecond(string sceneName)
         {
+            StartCoroutine(FadeController.Instance.FadeOut());
             yield return new WaitForSeconds(3f);
             SceneManager.LoadScene(sceneName);
             StartCoroutine(FadeController.Instance.FadeIn());
@@ -105,7 +124,12 @@ namespace CandyProject
         public void RestartLevel()
         {
             playEffectController.StopWinEffect();
+
+            if (Board != null)
+                Board.ClearBoard();
+
             StartLevel();
+            StartCoroutine(LoadSceneWaitForSecond("SceneGame"));
             HandleCanMoveGameState();
         }
 
@@ -130,6 +154,44 @@ namespace CandyProject
             SoundManager.Instance.StopMusic();
         }
 
+        public void NextLevel()
+        {
+            if (Board != null)
+            {
+                Board.ClearBoard();
+                Destroy(Board.gameObject);
+                Board = null;
+            }
+
+            playEffectController?.StopWinEffect();
+
+            if (allLevelData == null || allLevelData.Count == 0)
+            {
+                Debug.LogError("No level data found!");
+                return;
+            }
+
+            int nextIndex = currentLevelIndex + 1;
+
+            if (nextIndex < allLevelData.Count)
+            {
+                currentLevelIndex = nextIndex;
+
+                if (nextIndex < levelProgressList.Count)
+                    levelProgressList[nextIndex].isUnlocked = true;
+
+                SaveSystem.SaveProgress(levelProgressList);
+
+                StartCoroutine(LoadSceneWaitForSecond("SceneGame"));
+            }
+            else
+            {
+                Debug.Log("All levels completed! Returning to menu...");
+                ExitLevel();
+            }
+        }
+
+
         public void RegisterLevelManager(LevelManager manager)
         {
             levelManager = manager;
@@ -141,6 +203,8 @@ namespace CandyProject
             HandleWaitingGameState();
             StartCoroutine(OnLevelComplete(levelIndex, score));
         }
+        
+
 
         private IEnumerator OnLevelComplete(int levelIndex, int score)
         {

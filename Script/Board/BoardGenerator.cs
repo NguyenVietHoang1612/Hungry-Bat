@@ -69,6 +69,7 @@ namespace CandyProject
         {
             Vector2 worldPos = new Vector2(x, y) * board.CellSize;
             GameObject tile = ObjectPoolManager.Instance.Get(board.BoardTile);
+            tile.transform.SetParent(board.boardTileTransform);
             tile.transform.position = worldPos;
             tile.transform.rotation = Quaternion.identity;
         }

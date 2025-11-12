@@ -12,6 +12,13 @@ namespace CandyProject
         public List<LevelProgress> progressList;
     }
 
+    [Serializable]
+    public class SettingsData
+    {
+        public float volumeMusic = 1f;
+        public float volumeSFX = 1f;
+    }
+
     public static class SaveSystem
     {
         private const string SaveFileName = "save.dat";
@@ -37,6 +44,47 @@ namespace CandyProject
                 Debug.LogError("Failed to save progress: " + e.Message);
             }
         }
+
+        public static void SaveSettings(SettingsData settingsData)
+        {
+            try
+            {
+                string json = JsonUtility.ToJson(settingsData);
+                string encrypted = Encrypt(json, SecretKey);    
+                File.WriteAllText(SavePath, encrypted);
+                Debug.Log($"Game VolumnSound saved at: {SavePath}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Failed to save progress: " + e.Message);
+            }
+        }
+
+        public static SettingsData LoadSetings()
+        {
+            try
+            {
+                if (!File.Exists(SavePath))
+                {
+                    Debug.Log("Save file not found. Using default data.");
+                    return null;
+                }
+                string encrypted = File.ReadAllText(SavePath);
+                string decrypted = Decrypt(encrypted, SecretKey);
+                SettingsData settingsData = JsonUtility.FromJson<SettingsData>(decrypted);
+
+                Debug.Log($"Game Load settings successfully");
+                return settingsData;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("Error loading save file, reset progress: " + e.Message);
+                return null;
+            }
+
+}
+
+
 
         // ==================== LOAD ====================
         public static List<LevelProgress> LoadProgress(List<LevelProgress> defaultList)
