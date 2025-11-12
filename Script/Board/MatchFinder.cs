@@ -20,7 +20,7 @@ namespace CandyProject
 
         public void FindMatchGems()
         {
-            GameManager.Instance.HandleWaitingGameState();
+            GameManager.Instance.SetGameState(GameState.Waiting);
             Gem[,] allGems = board.gems;
             int width = board.Width;
             int height = board.Height;
@@ -39,12 +39,7 @@ namespace CandyProject
             if (board.matches.Count >= 3)
             {
                 board.ClearMatchedGems();
-            }
-            else
-            {
-                GameManager.Instance.HandleCanMoveGameState();
-            }
-           
+            }         
         }
 
 
@@ -126,8 +121,6 @@ namespace CandyProject
             }
         }
 
-
-
         private void HandleMatchResults(int horizontalCount, int verticalCount)
         {
             if (board.matches.Count == 0)
@@ -152,7 +145,7 @@ namespace CandyProject
                 break;
             }
 
-            if (board.matches.Count >= 5 && (horizontalCount > 0 && horizontalCount < 5 ) && (verticalCount > 0 && verticalCount < 5) && isSameTypemMatched)
+            if (board.matches.Count >= 5 && (horizontalCount >= 3 && horizontalCount < 5 ) && (verticalCount >= 3 && verticalCount < 5) && isSameTypemMatched)
             {
                 matchInfos.Clear();
                 Vector2Int center = board.matches[board.matches.Count / 2];

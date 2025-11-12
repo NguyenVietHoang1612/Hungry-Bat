@@ -17,7 +17,7 @@ namespace CandyProject
 
         [SerializeField] private float moveSpeed = 6f;
 
-
+        public int height = 1;
         private void Start()
         {
             

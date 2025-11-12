@@ -34,7 +34,7 @@ namespace CandyProject
         private void Update()
         {
             hintTimer -= Time.deltaTime;
-            if (hintTimer <= 0 && currentHint == null && !levelManager.IsLevelComplete() && HintActive)
+            if (hintTimer <= 0 && currentHint == null)
             {
                 HintMark();
             }
@@ -55,6 +55,9 @@ namespace CandyProject
 
         public void HintMark()
         {
+            if (levelManager.IsLevelComplete() && HintActive && GameManager.Instance.HandleWaitingGameState())
+                return;
+
             currentHint = PickOneRandomHintMatches();
             if (currentHint != null)
             {

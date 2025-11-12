@@ -55,7 +55,7 @@ namespace CandyProject
 
         IEnumerator MovePanelCondition(Vector2 targetPos)
         {
-            GameManager.Instance.HandleWaitingGameState();
+            GameManager.Instance.SetGameState(GameState.Waiting);
             var startRect = notificationRect.anchoredPosition;
             float t = 0f;
             while (t < 1)
@@ -70,14 +70,14 @@ namespace CandyProject
         public void MovePanelToStart()
         {
             StartCoroutine(MovePanelCondition(startPoint));
-            GameManager.Instance.HandleCanMoveGameState();
+            GameManager.Instance.SetGameState(GameState.Playing);
             SetInactiveFade();
         }
 
         public void MovePanelToEnd()
         {
             StartCoroutine(MovePanelCondition(endPoint));
-            GameManager.Instance.HandleWaitingGameState();
+            GameManager.Instance.SetGameState(GameState.Waiting);
             StartCoroutine(WaitForSecondNotification());
         }
 

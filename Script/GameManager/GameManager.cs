@@ -13,7 +13,6 @@ namespace CandyProject
         Playing,
         Paused,
         GameFinish,
-        CanMove,
         Waiting
     }
 
@@ -39,6 +38,20 @@ namespace CandyProject
             base.Awake();
             DontDestroyOnLoad(gameObject);
             LoadSettings();
+        }
+
+        private void Update()
+        {
+            if (HandleWaitingGameState())
+            {
+                InputManager.Instance.DisableDrag();
+            }
+
+            if (HandleCanMoveGameState())
+            {
+                InputManager.Instance.EnableDrag();
+            }
+            
         }
 
         #region Level Progress
@@ -130,7 +143,7 @@ namespace CandyProject
 
             StartLevel();
             StartCoroutine(LoadSceneWaitForSecond("SceneGame"));
-            HandleCanMoveGameState();
+            GameManager.Instance.SetGameState(GameState.Playing);
         }
 
         public void StartLevel()
@@ -200,7 +213,7 @@ namespace CandyProject
         public void LevelComplete(int levelIndex, int score)
         {
             playEffectController.PlayWinEffect();
-            HandleWaitingGameState();
+            GameManager.Instance.SetGameState(GameState.Waiting);
             StartCoroutine(OnLevelComplete(levelIndex, score));
         }
         
@@ -250,16 +263,27 @@ namespace CandyProject
             currentState = newState;
         }
 
-        public void HandleWaitingGameState()
+        public bool HandleWaitingGameState()
         {
-            SetGameState(GameState.Waiting);
-            InputManager.Instance.DisableDrag();
+            if (currentState == GameState.Waiting)
+            { 
+                return true;
+            }
+
+            return false;
+            
         }
 
-        public void HandleCanMoveGameState()
+        public bool HandleCanMoveGameState()
         {
-            SetGameState(GameState.CanMove);
-            InputManager.Instance.EnableDrag();
+            if (currentState == GameState.Playing)
+            {
+                
+                return true;
+            }
+
+            return false;
+            
         }
 
         #endregion

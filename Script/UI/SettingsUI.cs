@@ -53,13 +53,13 @@ namespace CandyProject
         public void OpenSettings()
         {
             settingPanel.gameObject.SetActive(true);
-            GameManager.Instance.HandleWaitingGameState();
+            GameManager.Instance.SetGameState(GameState.Waiting);
         }
 
         public void CloseSetting()
         {
             settingPanel.gameObject.SetActive(false);
-            GameManager.Instance.HandleCanMoveGameState();
+            GameManager.Instance.SetGameState(GameState.Playing);
         }
 
         private void OnBackToMenuClicked()

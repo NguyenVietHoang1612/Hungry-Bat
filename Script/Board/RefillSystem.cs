@@ -41,7 +41,7 @@ namespace CandyProject
             board.StartCoroutine(CollapsingGem());
         }
 
-        // Rơi gem xuống ô trống
+        // Rơi gem lấp ô trống
         private IEnumerator CollapsingGem()
         {
             yield return new WaitForSeconds(0.2f);
@@ -172,7 +172,7 @@ namespace CandyProject
                         Vector2Int gridPos = new Vector2Int(x, y);
 
                         GemData randomGem = board.GemDatas[
-                            Random.Range(0, board.GemDatas.Length - board.NumSpecials())
+                            Random.Range(0, board.GemDatas.Length - 7)
                         ];
 
                         Gem newGem = board.CreateGem(worldPos, randomGem);
@@ -214,10 +214,8 @@ namespace CandyProject
             {
                 Debug.Log("You Lose!");
             }
-            else
-            {
-                GameManager.Instance.HandleCanMoveGameState(); 
-            }
+
+            GameManager.Instance.SetGameState(GameState.Playing);
         }
 
 

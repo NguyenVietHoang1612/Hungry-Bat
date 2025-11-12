@@ -78,7 +78,7 @@ namespace CandyProject
         {
             Vector2 worldPos = (Vector2)gridPos * board.CellSize;
             GemData[] gems = board.GemDatas;
-            GemData randomGem = gems[Random.Range(0, gems.Length - board.NumSpecials())];
+            GemData randomGem = gems[Random.Range(0, gems.Length - 7)];
 
             GameObject obj = ObjectPoolManager.Instance.Get(board.GemPrefab);
             obj.transform.position = worldPos;
