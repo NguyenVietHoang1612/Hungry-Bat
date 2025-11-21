@@ -6,7 +6,7 @@ namespace CandyProject
     public class RefillSystem
     {
         private BoardManager board;
-
+        private bool isEndGameAudioPlayed = false;
         public RefillSystem(BoardManager board)
         {
             this.board = board;
@@ -23,25 +23,25 @@ namespace CandyProject
                     {
                         gem.PlayDestroyEffect();
 
-                        board.LevelManager.AddScore(gem.GetGemData.scoreValue);
                         board.LevelManager.ReduceGemGoal(gem);
+                        board.LevelManager.AddScore(gem.GetGemData.scoreValue);
 
+                        DamageAdjacentCrates(x, y);
                         gem.ReturnPoolGem(board.GemPrefab);
                         board.gems[x, y] = null;
-
-                        if (board.bonusGem[x, y] != null)
-                        {
-                            board.bonusGem[x, y].Damage(1);
-                        }
                     }
-              
+
                 }
             }
-
-            board.StartCoroutine(CollapsingGem());
+            Collapsing();
         }
 
         // Rơi gem lấp ô trống
+        public void Collapsing()
+        {
+            board.StartCoroutine(CollapsingGem());
+        }
+
         private IEnumerator CollapsingGem()
         {
             yield return new WaitForSeconds(0.2f);
@@ -50,7 +50,7 @@ namespace CandyProject
             int height = board.Height;
 
             CollapseVertical(width, height);
-            //CollapseDiagonalAndHorizontal(width, height);
+            CollapseDiagonalAndHorizontal(width, height);
 
             yield return new WaitForSeconds(0.1f);
             board.StartCoroutine(RefillingGem());
@@ -63,7 +63,7 @@ namespace CandyProject
                 int emptyY = -1;
                 for (int y = 0; y < height; y++)
                 {
-                    if (board.obstacle[x, y])
+                    if (board.obstacle[x, y] || board.crates[x, y])
                     {
                         emptyY = -1;
                         continue;
@@ -88,64 +88,86 @@ namespace CandyProject
         }
 
         // Rơi chéo
-        //private void CollapseDiagonalAndHorizontal(int width, int height)
-        //{
-        //    for (int x = 0; x < width; x++)
-        //    {
-        //        for (int y = 0; y < height; y++)
-        //        {
-        //            if (x + 1 >= width || x + 2 >= width || x - 1 < 0 || x - 2 < 0 || y + 1 >= height || y - 1 < 0)
-        //                continue;
-
-        //            Gem currentGem = board.gems[x, y]; ;
-
-        //            while (currentGem != null && board.obObstacle[x + 1, y] && !board.obObstacle[x + 1, y - 1] && board.gems[x + 1, y - 1] == null)
-        //            {
-
-        //                board.gems[x, y].MoveTo(new Vector2Int(x + 1, y - 1));
-        //                board.gems[x + 1, y - 1] = board.gems[x, y];
-        //                board.gems[x, y] = null;
-
-        //                CollapseVertical(width, height);
-        //            }
-
-        //            while (currentGem != null && board.obObstacle[x - 1, y] && !board.obObstacle[x - 1, y - 1] && board.gems[x - 1, y - 1] == null)
-        //            {
-
-        //                board.gems[x, y].MoveTo(new Vector2Int(x - 1, y - 1));
-        //                board.gems[x - 1, y - 1] = board.gems[x, y];
-        //                board.gems[x, y] = null;
-
-        //                CollapseVertical(width, height);
-        //            }
+        private void CollapseDiagonalAndHorizontal(int width, int height)
+        {
 
 
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Gem currentGem = board.gems[x, y];
+                    if (currentGem == null) continue;
 
+                    int startX = x;
+                    int startY = y;
 
-        //            int randomDrop = Random.Range(0, 10);
+                    // Thử rơi chéo sang phải nếu có crate/obstacle ở (cx+1,cy) và ô dưới của nó (cx+1,cy-1) trống
+                    while (true)
+                    {
+                        int targetX = startX + 1;
+                        int targetY = startY - 1;
 
-        //            if (randomDrop > 5)
-        //            {
-        //                if (currentGem != null && !board.obObstacle[x + 1, y] && board.obObstacle[x, y + 1] && board.obObstacle[x + 1, y + 1] && board.obObstacle[x + 2, y + 1] && board.gems[x + 1, y] == null)
-        //                {
-        //                    board.gems[x, y].MoveTo(new Vector2Int(x + 1, y));
-        //                    board.gems[x + 1, y] = board.gems[x, y];
-        //                    board.gems[x, y] = null;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (currentGem != null && !board.obObstacle[x - 1, y] && board.obObstacle[x, y + 1] && board.obObstacle[x - 1, y + 1] && board.obObstacle[x - 2, y + 1] && board.gems[x - 1, y] == null)
-        //                {
-        //                    board.gems[x, y].MoveTo(new Vector2Int(x - 1, y));
-        //                    board.gems[x - 1, y] = board.gems[x, y];
-        //                    board.gems[x, y] = null;
-        //                }
-        //            }
+                        // điều kiện ô mục tiêu và ô crate nằm trong board
+                        if (!IsInside(targetX, targetY) || !IsInside(startX + 1, startY)) break;
 
-        //        }
-        //    }
-        //}
+                        bool neighbourHasBlock = board.obstacle[startX + 1, startY] || (board.crates[startX + 1, startY] != null);
+                        bool targetBelowFree = !board.obstacle[targetX, targetY] && (board.crates[targetX, targetY] == null) && (board.gems[targetX, targetY] == null);
+
+                        // nếu bên dưới crate/obstacle là null => rơi chéo xuống ô dưới crate
+                        if (neighbourHasBlock && targetBelowFree)
+                        {
+                            board.gems[startX, startY].MoveTo(new Vector2Int(targetX, targetY));
+                            board.gems[targetX, targetY] = board.gems[startX, startY];
+                            board.gems[startX, startY] = null;
+
+                            // cập nhật vị trí gem hiện tại để có thể tiếp tục rơi thêm (nếu cần)
+                            startX = targetX;
+                            startY = targetY;
+                            currentGem = board.gems[startX, startY];
+
+                            // sau khi di chuyển, tiếp tục vòng while để dò tiếp
+                            continue;
+                        }
+
+                        break;
+                    }
+
+                    // Thử rơi chéo sang trái (tương tự)
+                    startX = x;
+                    startY = y;
+                    while (true)
+                    {
+                        int nx = startX - 1;
+                        int ny = startY - 1;
+
+                        if (!IsInside(nx, ny) || !IsInside(startX - 1, startY)) break;
+
+                        bool neighbourHasBlock = board.obstacle[startX - 1, startY] || (board.crates[startX - 1, startY] != null);
+                        bool targetBelowFree = !board.obstacle[nx, ny] && (board.crates[nx, ny] == null) && (board.gems[nx, ny] == null);
+
+                        if (neighbourHasBlock && targetBelowFree)
+                        {
+                            board.gems[startX, startY].MoveTo(new Vector2Int(nx, ny));
+                            board.gems[nx, ny] = board.gems[startX, startY];
+                            board.gems[startX, startY] = null;
+
+                            startX = nx;
+                            startY = ny;
+                            currentGem = board.gems[startX, startY];
+                            continue;
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            // Sau khi rơi chéo xong, gọi lại CollapseVertical để đẩy xuống các cột nếu cần
+            CollapseVertical(width, height);
+        }
+
+        private bool IsInside(int xx, int yy) => xx >= 0 && xx < board.Width && yy >= 0 && yy < board.Height;
 
 
         // Sinh gem làm đầy board
@@ -163,6 +185,8 @@ namespace CandyProject
                 {
                     if (board.obstacle[x, y]) continue;
 
+                    if (board.crates[x, y]) continue;
+
                     if (board.gems[x, y] == null)
                     {
                         anySpawned = true;
@@ -172,7 +196,7 @@ namespace CandyProject
                         Vector2Int gridPos = new Vector2Int(x, y);
 
                         GemData randomGem = board.GemDatas[
-                            Random.Range(0, board.GemDatas.Length - 7)
+                            Random.Range(0, board.GemDatas.Length - board.NumSpecials())
                         ];
 
                         Gem newGem = board.CreateGem(worldPos, randomGem);
@@ -192,7 +216,7 @@ namespace CandyProject
             board.FindMatches();
 
             yield return new WaitForSeconds(1f);
-            
+
             if (board.CheckDeadLock)
             {
                 Debug.Log("Deadlock detected! Shuffling the board...");
@@ -200,25 +224,66 @@ namespace CandyProject
             }
 
             yield return new WaitForSeconds(0.5f);
-            // Kiểm tra lại lần cuối sau khi refill và match hoàn toàn xong
+
             if (board.LevelManager.IsLevelComplete())
             {
-                GameManager.Instance.LevelComplete(
-                    board.LevelManager.LevelData.levelIndex - 1,
-                    board.LevelManager.CurrentScore
-                );
+                if (!isEndGameAudioPlayed)
+                {
+                    isEndGameAudioPlayed = true;
+                    SoundManager.Instance.PlayOneShotSfx(board.WinAudio);
+                }
+                board.LevelManager.uiAchievedResults.UpdateAchirved();
                 board.LevelManager.uiAchievedResults.ShowAchievedResults();
-                Debug.Log("Level Complete!");
+                yield break;
             }
-            else if (!board.LevelManager.IsLevelComplete() && board.LevelManager.RemainingMoves <= 0)
+            else if (!board.LevelManager.IsLevelComplete() && board.LevelManager.RemainingMoves == 0)
             {
-                Debug.Log("You Lose!");
+                if (!isEndGameAudioPlayed)
+                {
+                    isEndGameAudioPlayed = true;
+                    SoundManager.Instance.PlayOneShotSfx(board.LoseAudio);
+                }
+                board.LevelManager.uiAchievedResults.UpdateAchirved();
+                board.LevelManager.uiAchievedResults.ShowAchievedResults();
+                yield break;
             }
 
             GameManager.Instance.SetGameState(GameState.Playing);
         }
 
+        private void DamageAdjacentCrates(int x, int y)
+        {
+            Vector2Int[] dirs = new Vector2Int[]
+            {
+                new Vector2Int(1, 0),   
+                new Vector2Int(-1, 0),  
+                new Vector2Int(0, 1), 
+                new Vector2Int(0, -1)   
+            };
+
+            foreach (var d in dirs)
+            {
+                int nx = x + d.x;
+                int ny = y + d.y;
+
+                if (nx < 0 || nx >= board.Width || ny < 0 || ny >= board.Height)
+                    continue;
+
+                if (board.crates[nx, ny] != null)
+                {
+                    board.crates[nx, ny].Damage(1);
+
+                    if (board.crates[nx, ny].health < 0)
+                    {
+                        board.crates[nx, ny].ReturnPoolGem(board.CratePrefab);
+                        board.LevelManager.ReduceGemGoal(board.crates[nx, ny]);
+                        board.crates[nx, ny] = null;
+                    }
+                }
+            }
+        }
 
 
     }
+
 }

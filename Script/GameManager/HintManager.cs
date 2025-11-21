@@ -55,7 +55,7 @@ namespace CandyProject
 
         public void HintMark()
         {
-            if (levelManager.IsLevelComplete() && HintActive && GameManager.Instance.HandleWaitingGameState())
+            if ((levelManager.IsLevelComplete() && HintActive && GameManager.Instance.HandleWaitingGameState()) || (!levelManager.IsLevelComplete() && levelManager.RemainingMoves <= 0))
                 return;
 
             currentHint = PickOneRandomHintMatches();

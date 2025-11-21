@@ -14,20 +14,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelIndex: 3
   levelName: Level3
-  width: 6
-  height: 6
-  tileKinds: []
+  width: 8
+  height: 8
+  tileKinds:
+  - posX: 0
+    posY: 0
+    tileType: 0
+  - posX: 7
+    posY: 0
+    tileType: 0
+  - posX: 0
+    posY: 7
+    tileType: 0
+  - posX: 7
+    posY: 7
+    tileType: 0
+  - posX: 4
+    posY: 5
+    tileType: 1
+  - posX: 5
+    posY: 5
+    tileType: 1
+  - posX: 2
+    posY: 5
+    tileType: 1
+  - posX: 3
+    posY: 5
+    tileType: 1
   targetScore: 700
-  movesLimit: 0
+  movesLimit: 25
   hasTimeLimit: 0
-  timeLimit: 30
+  timeLimit: 0
   gemGoalDatas:
   - gemData: {fileID: 11400000, guid: 96ce1c0f37b747c41844487b6e149354, type: 2}
-    requiredAmount: 20
+    requiredAmount: 10
   - gemData: {fileID: 11400000, guid: 2ddecd7bc6ae251468bbe4d4e324bc52, type: 2}
-    requiredAmount: 20
-  - gemData: {fileID: 11400000, guid: b66db7081a34af545bf09a3ddd04ecb7, type: 2}
-    requiredAmount: 20
-  oneStarScore: 220
-  twoStarScore: 450
-  threeStarScore: 600
+    requiredAmount: 10
+  - gemData: {fileID: 11400000, guid: 3be8dbac75cdba247a9f683b728b48f4, type: 2}
+    requiredAmount: 4
+  oneStarScore: 150
+  twoStarScore: 400
+  threeStarScore: 660

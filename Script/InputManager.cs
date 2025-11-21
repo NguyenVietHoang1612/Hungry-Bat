@@ -50,8 +50,10 @@ namespace CandyProject
 
         public void DisableDrag()
         {
-            if (inputActions.UI.enabled) 
+            if (inputActions.UI.enabled)
                 inputActions.UI.Disable();
+
+
         }
 
         public void EnableDrag()

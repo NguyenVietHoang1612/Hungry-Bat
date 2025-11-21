@@ -11,6 +11,7 @@ namespace CandyProject
         [SerializeField] private Image[] stars;
         [SerializeField] private GameObject lockIcon;
         [SerializeField] private Button playButton;
+        [SerializeField] private Sprite starActive;
 
         private int levelIndex;
         private bool isUnlocked;
@@ -37,9 +38,7 @@ namespace CandyProject
                 bool star = (i < progress.starLevel);
 
                 if (star)
-                    stars[i].color = Color.white;
-                else
-                    stars[i].color = Color.black;
+                    stars[i].sprite = starActive;
             }
 
             lockIcon.SetActive(!isUnlocked);

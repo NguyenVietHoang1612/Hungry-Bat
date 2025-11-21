@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace CandyProject
@@ -65,6 +66,14 @@ namespace CandyProject
                 }
 
                 Gem boomGem = board.CreateGem(worldPos, boomData);
+                if(matchInfo.matchType == MatchType.FourHorizontal)
+                {
+                    boomGem.isVertical = false;
+                }
+                else if(matchInfo.matchType == MatchType.FourVertical)
+                {
+                    boomGem.isVertical = true;
+                }
                 boomGem.isMatch = false;
                 boomGem.gridPos = centerPos;
                 board.gems[centerPos.x, centerPos.y] = boomGem;
@@ -85,17 +94,70 @@ namespace CandyProject
 
             if (gemA.GetGemData.IsBoom)
             {
+                if (gemA.TypeOfGem == GemType.ArrowHorizontal || gemA.TypeOfGem == GemType.ArrowVertical)
+                {
+                    ArrowBlast(gemA);
+                }
+                else
+                {
+                    switch (gemA.TypeOfGem)
+                    {
+                        case GemType.BoomColor:
+                            GetAllSameType(gemB.TypeOfGem);
+                            break;
+                        case GemType.BoomWrapped:
+                            GetArroundGem(gemA);
+                            break;
+                        default:
+                            Debug.Log("Khong co loai boom");
+                            break;
+                    }
+                    board.ClearMatchedGems();
+                }      
+            }
+
+            if (gemB.GetGemData.IsBoom)
+            {
+                if (gemB.TypeOfGem == GemType.ArrowHorizontal || gemB.TypeOfGem == GemType.ArrowVertical)
+                {
+                    ArrowBlast(gemA);
+                }
+                else
+                {
+                    switch (gemB.TypeOfGem)
+                    {
+                        case GemType.BoomColor:
+                            gemA.isMatch = true;
+                            GetAllSameType(gemB.TypeOfGem);
+                            break;
+                        case GemType.BoomWrapped:
+                            GetArroundGem(gemB);
+                            break;
+                        default:
+                            Debug.Log("Khong co loai boom");
+                            break;
+                    }
+                    board.ClearMatchedGems();
+                }
+            }
+
+        }
+
+        public void TriggerBoom(Gem gemA)
+        {
+            visitedBooms.Clear();
+
+            if (gemA.TypeOfGem == GemType.ArrowHorizontal || gemA.TypeOfGem == GemType.ArrowVertical)
+            {
+                ArrowBlast(gemA);
+            }
+            else
+            {
                 switch (gemA.TypeOfGem)
                 {
-                    case GemType.ArrowHorizontal:
-                        GetRow(gemA.gridPos.y);
-                        break;
-                    case GemType.ArrowVertical:
-                        GetColumn(gemA.gridPos.x);
-                        break;
                     case GemType.BoomColor:
                         gemA.isMatch = true;
-                        GetAllSameType(gemB.TypeOfGem);
+                        GetAllSameType(gemA.TypeOfGem);
                         break;
                     case GemType.BoomWrapped:
                         GetArroundGem(gemA);
@@ -104,121 +166,79 @@ namespace CandyProject
                         Debug.Log("Khong co loai boom");
                         break;
                 }
-            }
-
-            if (gemB.GetGemData.IsBoom)
-            {
-                switch (gemB.TypeOfGem)
-                {
-                    case GemType.ArrowHorizontal:
-                        GetRow(gemB.gridPos.y);
-                        break;
-                    case GemType.ArrowVertical:
-                        GetColumn(gemB.gridPos.x);
-                        break;
-                    case GemType.BoomColor:
-                        gemB.isMatch = true;
-                        GetAllSameType(gemA.TypeOfGem);
-                        break;
-                    case GemType.BoomWrapped:
-                        GetArroundGem(gemB);
-                        break;
-                    default:
-                        Debug.Log("Khong co loai boom");
-                        break;
-                }
-            }
-            board.ClearMatchedGems();
-        }
-
-        public void TriggerBoom(Gem gemA)
-        {
-            visitedBooms.Clear();
-
-            switch (gemA.TypeOfGem)
-            {
-                case GemType.ArrowHorizontal:
-                    GetRow(gemA.gridPos.y);
-                    break;
-                case GemType.ArrowVertical:
-                    GetColumn(gemA.gridPos.x);
-                    break;
-                case GemType.BoomWrapped:
-                    GetArroundGem(gemA);
-                    break;
-                default:
-                    Debug.Log("Khong co loai boom");
-                    break;
-            }
-
-            board.ClearMatchedGems();
-        }
-
-
-        private void GetRow(int row)
-        {
-
-            for (int x = 0; x < board.Width; x++)
-            {
-                if (board.gems[x, row] == null) continue;
-
-
-                Vector2Int pos = board.gems[x, row].gridPos;
-                if (visitedBooms.Contains(pos)) continue;
-
-                visitedBooms.Add(pos);
-
-                if (board.gems[x, row] != null)
-                {
-                    board.gems[x, row].isMatch = true;
-                }
-
-                if (board.gems[x, row] != null && board.gems[x, row].isMatch && board.gems[x, row].TypeOfGem == GemType.ArrowVertical)
-                {
-                    GetColumn(x);
-                }
-                else if (board.gems[x, row] != null && board.gems[x, row].isMatch && board.gems[x, row].TypeOfGem == GemType.BoomWrapped)
-                {
-                    GetArroundGem(board.gems[x, row]);
-                }
-                else if (board.gems[x, row] != null && board.gems[x, row].isMatch && board.gems[x, row].TypeOfGem == GemType.BoomColor)
-                {
-                    GemType typeOfGem = board.GetRandomGemType();
-                    GetAllSameType(typeOfGem);
-                }
-
+                board.ClearMatchedGems();
             }
         }
 
-        private void GetColumn(int column)
+        public void ArrowBlast(Gem gem)
         {
-            for (int y = 0; y < board.Height; y++)
+            ClearOneGem(gem.gridPos);
+
+            Vector2Int dir = gem.isVertical ? Vector2Int.up : Vector2Int.right;
+
+            board.StartCoroutine(AnimateClearance(gem.gridPos + dir, dir));
+            board.StartCoroutine(AnimateClearance(gem.gridPos - dir, -dir));
+        }
+
+
+        private IEnumerator AnimateClearance(Vector2Int pos, Vector2Int dir)
+        {
+            float delayPerGem = 0.15f;
+
+            while (board.IsInsideBoard(pos))
             {
-                if (board.gems[column, y] == null) continue;
+                ClearOneGem(pos);
 
-                Vector2Int pos = new Vector2Int(column, y);
-                if (visitedBooms.Contains(pos)) continue;
+                pos += dir;
+                yield return new WaitForSeconds(delayPerGem);
+            }
 
-                visitedBooms.Add(pos);
+            board.CollapsingGem();
+        }
 
-                if (board.gems[column, y] != null)
-                {
-                    board.gems[column, y].isMatch = true;
-                }
+        private void ClearOneGem(Vector2Int pos)
+        {
+            Gem gem = board.gems[pos.x, pos.y];
+            if (gem != null)
+            {
+                gem.isMatch = true;
+                gem.PlayDestroyEffect();
 
-                if (board.gems[column, y] != null && board.gems[column, y].isMatch && board.gems[column, y].TypeOfGem == GemType.ArrowHorizontal)
+                board.LevelManager.AddScore(gem.GetGemData.scoreValue);
+                board.LevelManager.ReduceGemGoal(gem);
+
+                gem.ReturnPoolGem(board.GemPrefab);
+
+                board.gems[pos.x, pos.y] = null;
+            }
+
+            if (board.crates[pos.x, pos.y] != null)
+            {
+                board.crates[pos.x, pos.y].Damage(1);
+
+                if (board.crates[pos.x, pos.y].health < 0)
                 {
-                    GetRow(y);
+                    board.crates[pos.x, pos.y].ReturnPoolGem(board.CratePrefab);
+                    board.LevelManager.ReduceGemGoal(board.crates[pos.x, pos.y]);
+                    board.crates[pos.x, pos.y] = null;
                 }
-                else if (board.gems[column, y] != null && board.gems[column, y].isMatch && board.gems[column, y].TypeOfGem == GemType.BoomWrapped)
-                {
-                    GetArroundGem(board.gems[column, y]);
-                }
-                else if (board.gems[column, y] != null && board.gems[column, y].isMatch && board.gems[column, y].TypeOfGem == GemType.BoomColor)
-                {
-                    GemType typeOfGem = board.GetRandomGemType();
-                    GetAllSameType(typeOfGem);
-                }
+            }
+
+            if (gem != null &&
+                        gem.isMatch &&
+                        (gem.TypeOfGem == GemType.ArrowHorizontal ||
+                         gem.TypeOfGem == GemType.ArrowVertical))
+            {
+                ArrowBlast(gem);
+            }
+            else if (gem != null && gem.isMatch && gem.TypeOfGem == GemType.BoomColor)
+            {
+                GemType typeOfGem = board.GetRandomGemType();
+                GetAllSameType(typeOfGem);
+            }
+            else if (gem != null && gem.isMatch && gem.TypeOfGem == GemType.BoomWrapped)
+            {
+                GetArroundGem(gem);
             }
         }
 
@@ -260,18 +280,33 @@ namespace CandyProject
                         board.gems[x, y].isMatch = true;
                     }
 
-                    if (board.gems[x, y] != null && board.gems[x, y].isMatch && board.gems[x, y].TypeOfGem == GemType.ArrowHorizontal)
+                    if (board.crates[x, y] != null)
                     {
-                        GetRow(y);
+                        board.crates[x, y].Damage(1);
+
+                        if (board.crates[x, y].health < 0)
+                        {
+                            board.crates[x, y].ReturnPoolGem(board.CratePrefab);
+                            board.LevelManager.ReduceGemGoal(board.crates[x, y]);
+                            board.crates[x, y] = null;
+                        }
                     }
-                    else if (board.gems[x, y] != null && board.gems[x, y].isMatch && board.gems[x, y].TypeOfGem == GemType.ArrowVertical)
+
+                    if (board.gems[x, y] != null &&
+                        board.gems[x, y].isMatch &&
+                        (board.gems[x, y].TypeOfGem == GemType.ArrowHorizontal ||
+                         board.gems[x, y].TypeOfGem == GemType.ArrowVertical))
                     {
-                        GetColumn(x);
+                        ArrowBlast(board.gems[x, y]);
                     }
                     else if (board.gems[x, y] != null && board.gems[x, y].isMatch && board.gems[x, y].TypeOfGem == GemType.BoomColor)
                     {
                         GemType typeOfGem = board.GetRandomGemType();
                         GetAllSameType(typeOfGem);
+                    }
+                    else if (board.gems[x, y] != null && board.gems[x, y].isMatch && board.gems[x, y].TypeOfGem == GemType.BoomWrapped)
+                    {
+                        GetArroundGem(board.gems[x, y]);
                     }
                 }
             }
@@ -288,6 +323,17 @@ namespace CandyProject
                         board.gems[x, y].isMatch = true;
                     }
 
+                    if (board.crates[x, y] != null)
+                    {
+                        board.crates[x, y].Damage(1);
+
+                        if (board.crates[x, y].health < 0)
+                        {
+                            board.crates[x, y].ReturnPoolGem(board.CratePrefab);
+                            board.LevelManager.ReduceGemGoal(board.crates[x, y]);
+                            board.crates[x, y] = null;
+                        }
+                    }
                 }
             }
         }

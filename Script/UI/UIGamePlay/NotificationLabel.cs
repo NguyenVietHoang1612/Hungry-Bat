@@ -8,13 +8,12 @@ namespace CandyProject
 {
     public class NotificationLabel : MonoBehaviour
     {
-        [SerializeField] private Transform fadePanel;
         [SerializeField] private Transform GemRequireContainer;
 
         [SerializeField] private RectTransform notificationRect;
         
-        [SerializeField] GameObject gemRequirePrefab;
 
+        [SerializeField] GameObject gemRequirePrefab;
         [SerializeField] LevelManager levelManager;
 
         [SerializeField] private float duration = 0.5f;
@@ -37,6 +36,8 @@ namespace CandyProject
 
             for (int i = 0; i < gemRequire.Count; i++)
             {
+                if (gemRequire[i] == null || gemRequire[i].gemData == null) continue;
+
                 var gemRequieObj = ObjectPoolManager.Instance.Get(gemRequirePrefab);
                 gemRequieObj.transform.SetParent(GemRequireContainer);
                 gemRequieObj.transform.localPosition = Vector3.zero;
@@ -47,8 +48,6 @@ namespace CandyProject
                 TMP_Text amountRequire = gemRequireImage.GetComponentInChildren<TMP_Text>();
                 amountRequire.text = gemRequire[i].requiredAmount.ToString();
             }
-
-            SetActiveFade();
         }
 
         
@@ -71,7 +70,6 @@ namespace CandyProject
         {
             StartCoroutine(MovePanelCondition(startPoint));
             GameManager.Instance.SetGameState(GameState.Playing);
-            SetInactiveFade();
         }
 
         public void MovePanelToEnd()
@@ -87,15 +85,6 @@ namespace CandyProject
             MovePanelToStart();
         }
 
-        public void SetActiveFade()
-        {
-            fadePanel.gameObject.SetActive(true);
-        }
-
-        public void SetInactiveFade()
-        {
-            fadePanel.gameObject.SetActive(false);
-        }
 
     }
 }

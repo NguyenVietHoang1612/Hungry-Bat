@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 479e3a24d4f25b3478068099800041ea, type: 3}
   m_Name: BoomGem
   m_EditorClassIdentifier: 
-  gemName: LargeBomb
+  gemName: bomb
   gemType: 10
-  spriteAtlas: {fileID: 100100200, guid: 4f134f9d49e86b54dacc816f9f8cb8d0, type: 3}
-  spriteName: LargeBomb
+  spriteAtlas: {fileID: 100100200, guid: c32ef0dbd437c074ab351a74d2605dd6, type: 3}
+  spriteName: bomb_icon
   scoreValue: 10
   destroyEffect: {fileID: 410749768702137879, guid: 6621e8b7940460143b2aa813aa0e2fc0, type: 3}
   destroySound: {fileID: 8300000, guid: e53c50cdd14c0004f8f381d4a956ab7b, type: 3}

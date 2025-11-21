@@ -42,8 +42,6 @@ namespace CandyProject
             }         
         }
 
-
-
         //Quét tìm các viên giống nhau theo hướng
         private int ScanByDirection(Vector2Int direction)
         {

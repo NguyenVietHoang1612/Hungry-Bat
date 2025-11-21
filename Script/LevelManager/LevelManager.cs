@@ -15,12 +15,11 @@ namespace CandyProject
         public List<GemGoal> GemGoals { get; private set; }
         public UIAchievedResults uiAchievedResults;
 
-        public event Action<int, float> OnScoreChanged;
+        public event Action<int> OnScoreChanged;
         public event Action<int> OnStarChanged;
-        public event Action<List<GemGoal>> OnGemGoalsUpdated;
-        public event Action OnAchievedChanged;
+        public event Action<List<GemGoal>, Gem> OnGemGoalsUpdated;
+        public event Action OnMoveRemainingUpdated;
         public event Action OnRestartLevel;
-
         private void Awake()
         {
             if (GameManager.Instance != null)
@@ -54,7 +53,7 @@ namespace CandyProject
             StarLevel = 0;
             OnStarChanged?.Invoke(StarLevel);
             OnRestartLevel?.Invoke();
-            OnScoreChanged?.Invoke(CurrentScore, 0f);
+            OnScoreChanged?.Invoke(CurrentScore);
         }
 
         public void AddScore(int score)
@@ -62,27 +61,33 @@ namespace CandyProject
             CurrentScore += score;
             float percent = Mathf.Clamp01((float)CurrentScore / levelData.targetScore);
 
-            OnScoreChanged?.Invoke(CurrentScore, percent);
+            OnScoreChanged?.Invoke(CurrentScore);
 
             int newStar = CalculateStarLevel();
+
             if (newStar != StarLevel)
             {
                 StarLevel = newStar;
                 OnStarChanged?.Invoke(StarLevel);
-                OnAchievedChanged?.Invoke();
             }
         }
 
-        public void UseMove() => RemainingMoves = Mathf.Max(0, RemainingMoves - 1);
+        public void UseMove()
+        {
+            RemainingMoves = Mathf.Max(0, RemainingMoves - 1);
+            OnMoveRemainingUpdated?.Invoke();
+        }
 
         public void ReduceGemGoal(Gem gem, int amount = 1)
         {
             foreach (var goal in GemGoals)
             {
+                if (goal.requiredAmount < 0) continue;
+
                 if (goal.gemData.gemType == gem.TypeOfGem)
                 {
                     goal.requiredAmount = Mathf.Max(0, goal.requiredAmount - amount);
-                    OnGemGoalsUpdated?.Invoke(GemGoals);
+                    OnGemGoalsUpdated?.Invoke(GemGoals, gem);
                     break;
                 }
             }
@@ -103,8 +108,10 @@ namespace CandyProject
             { 
                 if (g.requiredAmount > 0) 
                     return false; 
-            } 
+            }
             return true; 
         }
+
+        
     }
 }

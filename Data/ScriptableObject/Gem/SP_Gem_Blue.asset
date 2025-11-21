@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gemName: SP_Gem_Blue
   gemType: 1
-  spriteAtlas: {fileID: 100100200, guid: 4f134f9d49e86b54dacc816f9f8cb8d0, type: 3}
-  spriteName: SP_Gem_Blue
+  spriteAtlas: {fileID: 100100200, guid: 6583c76947041594a9467f4205d8c258, type: 3}
+  spriteName: blueberry
   scoreValue: 1
   destroyEffect: {fileID: 3290879970009674361, guid: f4f22f7bed44e2f4abeb41e8a2af3af6, type: 3}
   destroySound: {fileID: 8300000, guid: a17c77289a0ad9244b0c57a8d0f156cc, type: 3}
