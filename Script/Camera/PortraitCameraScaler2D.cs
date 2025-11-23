@@ -30,11 +30,11 @@ public class PortraitCameraScaler2D : MonoBehaviour
 
         if (board.Width >= board.Height)
         {
-            cam.orthographicSize = ((x / 2 + padding) / baseAspect) + 2;
+            cam.orthographicSize = ((x / 2 + padding) / baseAspect) + 1.5f;
         }
         else 
         {
-            cam.orthographicSize = (y / 2 + padding) + 2;  
+            cam.orthographicSize = (y / 2 + padding) + 1.5f;  
         }
     }
 

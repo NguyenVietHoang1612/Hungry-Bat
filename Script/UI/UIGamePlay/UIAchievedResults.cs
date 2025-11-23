@@ -10,6 +10,7 @@ namespace CandyProject
 {
     public class UIAchievedResults : MonoBehaviour
     {
+        [Header("UI SetUp")]
         [SerializeField] private Transform AchievedResultsContainer;
         [SerializeField] private TMP_Text textResult;
         [SerializeField] private Image loseIcon;
@@ -19,17 +20,16 @@ namespace CandyProject
         [SerializeField] private Button nextLevel;
         [SerializeField] private Button reStartLevel;
         [SerializeField] private TMP_Text scoreAmount;
+        [SerializeField] Sprite starActive;
 
-
-        private CanvasGroup canvasGroup;
-
+        [Header("UI Settings")]
         [SerializeField] private LevelManager levelManager; 
-
         [SerializeField] private RectTransform panel;
         [SerializeField] private float duration = 0.5f;
-
         [SerializeField] private Vector2 endTargetPosition;
         [SerializeField] private Vector2 startTargetPosition;
+
+        private CanvasGroup canvasGroup;
 
         private void Start()
         {
@@ -69,11 +69,7 @@ namespace CandyProject
                     bool hasStar = (i < starLevel);
                     if (i < starLevel)
                     {
-                        Stars[i].color = Color.white;
-                    }
-                    else
-                    {
-                        Stars[i].color = Color.black;
+                        Stars[i].sprite = starActive;
                     }
                 }
 

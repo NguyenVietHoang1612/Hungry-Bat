@@ -38,7 +38,10 @@ namespace CandyProject
                 bool star = (i < progress.starLevel);
 
                 if (star)
+                {
                     stars[i].sprite = starActive;
+                }
+                    
             }
 
             lockIcon.SetActive(!isUnlocked);

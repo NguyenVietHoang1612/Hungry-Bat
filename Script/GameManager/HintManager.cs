@@ -27,7 +27,12 @@ namespace CandyProject
                 InputManager.Instance.RegisterHintManager(this);
             }
 
-            ObjectPoolManager.Instance.CreatePool(hintEffect, 3);
+            if (currentHint != null) 
+            {
+                ClearHintMark();
+            }
+
+            ObjectPoolManager.Instance.CreatePool(hintEffect, 1);
             hintTimer = hintDelay;
         }
 

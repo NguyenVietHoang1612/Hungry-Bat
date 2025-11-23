@@ -14,9 +14,6 @@ namespace CandyProject
         [SerializeField] TMP_Text remainingMoves;
         [SerializeField] Slider scoreSlider;
         [SerializeField] Image[] stars;
-
-
-
         private void Start()
         {
             levelManager.OnScoreChanged += UpdateScoreUI;

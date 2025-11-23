@@ -936,6 +936,7 @@ MonoBehaviour:
   nextLevel: {fileID: 458539166}
   reStartLevel: {fileID: 62890441733024705}
   scoreAmount: {fileID: 415203377}
+  starActive: {fileID: 21300000, guid: 61b7c1903c6a99a438546db2cb7db60a, type: 3}
   levelManager: {fileID: 740229459}
   panel: {fileID: 2114312301}
   duration: 0.5

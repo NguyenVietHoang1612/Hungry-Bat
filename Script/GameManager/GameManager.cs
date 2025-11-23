@@ -21,6 +21,8 @@ namespace CandyProject
         [SerializeField] private GameState currentState;
 
         [SerializeField] private List<LevelData> allLevelData;
+        public List<LevelData> AllLevelData => allLevelData;
+
         private List<LevelProgress> levelProgressList = new List<LevelProgress>();
 
         [SerializeField] private LevelManager levelManager;
@@ -216,27 +218,27 @@ namespace CandyProject
             levelManager = manager;
         }
 
-        public void LevelComplete(int levelIndex, int score)
+        public void LevelComplete(int score)
         {
             playEffectController.PlayWinEffect();
-            GameManager.Instance.SetGameState(GameState.Waiting);
-            StartCoroutine(OnLevelComplete(levelIndex, score));
+            SetGameState(GameState.Waiting);
+            StartCoroutine(OnLevelComplete(score));
         }
         
 
 
-        private IEnumerator OnLevelComplete(int levelIndex, int score)
+        private IEnumerator OnLevelComplete(int score)
         {
             yield return new WaitForSeconds(2f);
-            if (levelIndex < 0 || levelIndex >= levelProgressList.Count) yield break;
+            if (currentLevelIndex < 0 || currentLevelIndex >= levelProgressList.Count) yield break;
 
-            var progress = levelProgressList[levelIndex];
+            var progress = levelProgressList[currentLevelIndex];
             progress.bestScore = Mathf.Max(progress.bestScore, score);
             progress.starLevel = levelManager.StarLevel;
             progress.isUnlocked = true;
 
-            if (levelIndex + 1 < levelProgressList.Count)
-                levelProgressList[levelIndex + 1].isUnlocked = true;
+            if (currentLevelIndex + 1 < levelProgressList.Count)
+                levelProgressList[currentLevelIndex + 1].isUnlocked = true;
 
             SaveSystem.SaveProgress(levelProgressList);
         }

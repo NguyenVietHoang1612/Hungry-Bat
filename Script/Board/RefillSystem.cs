@@ -232,6 +232,7 @@ namespace CandyProject
                     isEndGameAudioPlayed = true;
                     SoundManager.Instance.PlayOneShotSfx(board.WinAudio);
                 }
+                GameManager.Instance.LevelComplete(board.LevelManager.CurrentScore);
                 board.LevelManager.uiAchievedResults.UpdateAchirved();
                 board.LevelManager.uiAchievedResults.ShowAchievedResults();
                 yield break;
