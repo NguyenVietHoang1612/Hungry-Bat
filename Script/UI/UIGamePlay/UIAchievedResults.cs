@@ -10,37 +10,35 @@ namespace CandyProject
 {
     public class UIAchievedResults : MonoBehaviour
     {
+        [Header("UI SetUp")]
         [SerializeField] private Transform AchievedResultsContainer;
-        [SerializeField] private Sprite[] AchievedIcon;
-        [SerializeField] private Image AchievedImage;
-        [SerializeField] private TMP_Text levelMap;
+        [SerializeField] private TMP_Text textResult;
+        [SerializeField] private Image loseIcon;
         [SerializeField] private Image[] Stars;
+        [SerializeField] private Transform starsContainer;
         [SerializeField] private Button backToHome;
         [SerializeField] private Button nextLevel;
         [SerializeField] private Button reStartLevel;
+        [SerializeField] private TMP_Text scoreAmount;
+        [SerializeField] Sprite starActive;
 
-
-        private CanvasGroup canvasGroup;
-
+        [Header("UI Settings")]
         [SerializeField] private LevelManager levelManager; 
-
         [SerializeField] private RectTransform panel;
         [SerializeField] private float duration = 0.5f;
-
         [SerializeField] private Vector2 endTargetPosition;
         [SerializeField] private Vector2 startTargetPosition;
 
+        private CanvasGroup canvasGroup;
 
         private void Start()
         {
             canvasGroup = AchievedResultsContainer.GetComponent<CanvasGroup>();
-            levelManager.OnAchievedChanged += UpdateAchirved;
             backToHome.onClick.AddListener(OnBackToMenuClicked);
             reStartLevel.onClick.AddListener(OnReStartLevelClicked);
             nextLevel.onClick.AddListener(OnNextLevelClicked);
 
-            canvasGroup.alpha = 0;
-            levelMap.text = levelManager.LevelData.levelName;
+            DisableAchieved();
         }
 
         public void UpdateAchirved()
@@ -48,39 +46,35 @@ namespace CandyProject
             UpdateAchievedStar();
         }
 
-        public void UpdateAchievedStar()
+        private void UpdateAchievedStar()
         {
-            int starLevel = levelManager.StarLevel;
+            EnableAchieved();
 
-            switch(starLevel)
+            if (levelManager.RemainingMoves == 0 && !levelManager.IsLevelComplete())
             {
-                case 1:
-                    AchievedImage.sprite = AchievedIcon[0];
-                    break;
-                case 2:
-                    AchievedImage.sprite = AchievedIcon[1];
-                    break;
-                case 3:
-                    AchievedImage.sprite = AchievedIcon[2];
-                    break;
-                default:
-                    Debug.Log("Lose");
-                    break;
+                loseIcon.gameObject.SetActive(true);
+                textResult.text = "Lose";
+                nextLevel.gameObject.SetActive(false);
+                starsContainer.gameObject.SetActive(false);
             }
-
-
-            for (int i = 0; i < Stars.Length; i++)
+            else
             {
-                bool hasStar = (i < starLevel);
-                if (i < starLevel)
+                int starLevel = levelManager.StarLevel;
+                textResult.text = "COMPLETE!";
+                loseIcon.gameObject.SetActive(false);
+                starsContainer.gameObject.SetActive(true);
+
+                for (int i = 0; i < Stars.Length; i++)
                 {
-                    Stars[i].color = Color.white;
+                    bool hasStar = (i < starLevel);
+                    if (i < starLevel)
+                    {
+                        Stars[i].sprite = starActive;
+                    }
                 }
-                else
-                {
-                    Stars[i].color = Color.black;
-                }
-            }   
+
+            }         
+            scoreAmount.text = levelManager.CurrentScore.ToString();
         }
 
         public void MovePanelStart()
@@ -133,6 +127,21 @@ namespace CandyProject
         {
             canvasGroup.alpha = 1;
             MovePanelStart();
+            GameManager.Instance.SetGameState(GameState.Paused);
+        }
+
+        private void EnableAchieved()
+        {
+            canvasGroup.alpha = 1;
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.interactable = true;
+        }
+
+        private void DisableAchieved()
+        {
+            canvasGroup.alpha = 0;
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.interactable = false;
         }
     }
 }

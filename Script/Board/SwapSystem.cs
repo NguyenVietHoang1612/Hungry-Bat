@@ -54,8 +54,10 @@ namespace CandyProject
 
             if ((gemA.GetGemData.IsBoom || gemB.GetGemData.IsBoom))
             {
+                board.LevelManager.UseMove();
                 board.FindMatches();
                 board.TriggerSwapBoom(gemA, gemB);
+                GameManager.Instance.SetGameState(GameState.Playing);
                 yield break;
             }
 
@@ -74,6 +76,7 @@ namespace CandyProject
                 board.LevelManager.UseMove();
                 board.ClearMatchedGems();
             }
+            GameManager.Instance.SetGameState(GameState.Playing);
         }
 
 
@@ -142,12 +145,12 @@ namespace CandyProject
             int width = board.Width;
             int height = board.Height;
 
-            int totalGems = 0;
+            //int totalGems = 0;
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (board.gems[x, y] != null) totalGems++;
+                    //if (board.gems[x, y] != null) totalGems++;
 
                     if (board.gems[x, y] == null)
                         return false;
@@ -172,11 +175,10 @@ namespace CandyProject
                     }
                 }
             }
-            Debug.Log("Tổng số gem sau shuffle: " + totalGems);
+            //Debug.Log("Tổng số gem sau shuffle: " + totalGems);
 
             return true;
         }
-
         public List<Gem> ListMatches()
         {
             int width = board.Width;

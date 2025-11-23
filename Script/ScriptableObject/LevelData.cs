@@ -14,6 +14,7 @@ namespace CandyProject
         public int width;
         public int height;
 
+        [Header("TileKind")]
         public TileKind[] tileKinds;
 
         [Header("Goals / Conditions")]

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace CandyProject
@@ -16,18 +17,24 @@ namespace CandyProject
         {
             
             GenerateBlankSpaces();
-            GenerateBreakable();
+            GenerateCrates();
             for (int x = 0; x < board.Width; x++)
             {
                 for (int y = 0; y < board.Height; y++)
                 {
+                    if (board.crates[x, y] != null)
+                    {
+                        board.gems[x, y] = null;
+                        continue;
+                    }
+
                     if (board.obstacle[x, y])
                     {
                         board.gems[x, y] = null;
                         continue;
                     } 
 
-                    SpawnBoardTiles(x, y);
+                    //SpawnBoardTiles(x, y);
                     SpawnGem(new Vector2Int(x, y));
                     while (MatchesAt(x, y, board.gems[x, y]))
                     {
@@ -49,36 +56,28 @@ namespace CandyProject
             }
         }
 
-        public void GenerateBreakable()
+        public void GenerateCrates()
         {
-            foreach (TileKind tileKind in board.tileKinds)
+            foreach (var tile in board.tileKinds)
             {
-                if (tileKind.tileType == TileType.Breakable)
+                if (tile.tileType == TileType.Crate)
                 {
-                    Vector2 worldPos = new Vector2(tileKind.posX, tileKind.posY) * board.CellSize;
-                    GameObject bonusGem = ObjectPoolManager.Instance.Get(board.BonusGemPrefab);
-                    BonusGem bnGem = bonusGem.GetComponent<BonusGem>();
-                    bonusGem.transform.position = worldPos;
-                    bonusGem.transform.rotation = Quaternion.identity;
-                    board.bonusGem[tileKind.posX, tileKind.posY] = bnGem;
+                    Vector2 pos = new Vector2(tile.posX, tile.posY) * board.CellSize;
+
+                    GameObject gm = ObjectPoolManager.Instance.Get(board.CratePrefab);
+                    gm.transform.position = pos;
+
+                    Crate crate = gm.GetComponent<Crate>();
+                    board.crates[tile.posX, tile.posY] = crate;
                 }
             }
-        }
-
-        private void SpawnBoardTiles(int x, int y)
-        {
-            Vector2 worldPos = new Vector2(x, y) * board.CellSize;
-            GameObject tile = ObjectPoolManager.Instance.Get(board.BoardTile);
-            tile.transform.SetParent(board.boardTileTransform);
-            tile.transform.position = worldPos;
-            tile.transform.rotation = Quaternion.identity;
         }
 
         private void SpawnGem(Vector2Int gridPos)
         {
             Vector2 worldPos = (Vector2)gridPos * board.CellSize;
             GemData[] gems = board.GemDatas;
-            GemData randomGem = gems[Random.Range(0, gems.Length - 7)];
+            GemData randomGem = gems[Random.Range(0, gems.Length - board.NumSpecials())];
 
             GameObject obj = ObjectPoolManager.Instance.Get(board.GemPrefab);
             obj.transform.position = worldPos;
@@ -115,10 +114,10 @@ namespace CandyProject
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (board.gems[x,y] != null && !board.obstacle[x,y])
-                    {
-                        newBoard.Add(board.gems[x, y]);
-                    }
+                    if (board.gems[x, y] == null && board.obstacle[x, y]) continue;
+
+                    newBoard.Add(board.gems[x, y]);
+                    
                 }
             }
 
@@ -130,14 +129,14 @@ namespace CandyProject
                     {
                         int randomGem = Random.Range(0, newBoard.Count);
 
-
                         while (MatchesAt(x, y, newBoard[randomGem]))
                         {
-                            
                             randomGem = Random.Range(0, newBoard.Count);
                         }
 
                         Gem gem = newBoard[randomGem];
+                        if (gem == null) continue;
+
                         board.SwapGem(gem, board.gems[x, y]);
                         newBoard.Remove(gem);
                     }

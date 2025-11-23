@@ -21,6 +21,8 @@ namespace CandyProject
         [SerializeField] private GameState currentState;
 
         [SerializeField] private List<LevelData> allLevelData;
+        public List<LevelData> AllLevelData => allLevelData;
+
         private List<LevelProgress> levelProgressList = new List<LevelProgress>();
 
         [SerializeField] private LevelManager levelManager;
@@ -120,8 +122,9 @@ namespace CandyProject
         private IEnumerator LoadSceneWaitForSecond(string sceneName)
         {
             StartCoroutine(FadeController.Instance.FadeOut());
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(1f); ;
             SceneManager.LoadScene(sceneName);
+            Debug.Log("Load scene: " + sceneName);
             StartCoroutine(FadeController.Instance.FadeIn());
         }
 
@@ -129,17 +132,18 @@ namespace CandyProject
         {
             currentLevelIndex = 0;
             levelManager = null;
-            StartCoroutine(FadeController.Instance.FadeOut());
+
+            if (Board != null)
+                Board.ClearBoard();
+
             StartCoroutine(LoadSceneWaitForSecond("SceneMenu"));
+
             SoundManager.Instance.PlayMusic(musicMenu);
         }
 
         public void RestartLevel()
         {
             playEffectController.StopWinEffect();
-
-            if (Board != null)
-                Board.ClearBoard();
 
             StartLevel();
             StartCoroutine(LoadSceneWaitForSecond("SceneGame"));
@@ -149,6 +153,10 @@ namespace CandyProject
         public void StartLevel()
         {
             GetReferences();
+
+            if (Board != null)
+                Board.ClearBoard();
+
             if (currentLevelIndex < 0 || currentLevelIndex >= allLevelData.Count)
             {
                 Debug.LogError("Invalid level index");
@@ -210,27 +218,27 @@ namespace CandyProject
             levelManager = manager;
         }
 
-        public void LevelComplete(int levelIndex, int score)
+        public void LevelComplete(int score)
         {
             playEffectController.PlayWinEffect();
-            GameManager.Instance.SetGameState(GameState.Waiting);
-            StartCoroutine(OnLevelComplete(levelIndex, score));
+            SetGameState(GameState.Waiting);
+            StartCoroutine(OnLevelComplete(score));
         }
         
 
 
-        private IEnumerator OnLevelComplete(int levelIndex, int score)
+        private IEnumerator OnLevelComplete(int score)
         {
             yield return new WaitForSeconds(2f);
-            if (levelIndex < 0 || levelIndex >= levelProgressList.Count) yield break;
+            if (currentLevelIndex < 0 || currentLevelIndex >= levelProgressList.Count) yield break;
 
-            var progress = levelProgressList[levelIndex];
+            var progress = levelProgressList[currentLevelIndex];
             progress.bestScore = Mathf.Max(progress.bestScore, score);
             progress.starLevel = levelManager.StarLevel;
             progress.isUnlocked = true;
 
-            if (levelIndex + 1 < levelProgressList.Count)
-                levelProgressList[levelIndex + 1].isUnlocked = true;
+            if (currentLevelIndex + 1 < levelProgressList.Count)
+                levelProgressList[currentLevelIndex + 1].isUnlocked = true;
 
             SaveSystem.SaveProgress(levelProgressList);
         }
@@ -248,13 +256,15 @@ namespace CandyProject
         {
             if (currentState == GameState.Playing)
             {
-                SetGameState(GameState.Paused);
-                Time.timeScale = 0;
+                //SetGameState(GameState.Paused);
+                SetGameState(GameState.Waiting);
+
+                //Time.timeScale = 0;
             }
             else if (currentState == GameState.Paused)
             {
                 SetGameState(GameState.Playing);
-                Time.timeScale = 1;
+                //Time.timeScale = 1;
             }
         }
 

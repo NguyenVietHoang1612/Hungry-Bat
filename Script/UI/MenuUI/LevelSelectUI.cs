@@ -11,13 +11,14 @@ namespace CandyProject
 
         private void Start()
         {
-            ObjectPoolManager.Instance.CreatePool(levelButtonPrefab, 7);
+            ObjectPoolManager.Instance.CreatePool(levelButtonPrefab, GameManager.Instance.AllLevelData.Count);
+            GameManager.Instance.LoadProgress();
+            GenerateLevelButtons();
         }
 
-        public void GenerateLevelButtons()
+        private void GenerateLevelButtons()
         {
             ClearLevelContainer();
-            EnterLevelContainer();
             var levels = GameManager.Instance.GetAllProgress();
 
             if (levels == null || levels.Count == 0)
@@ -46,7 +47,7 @@ namespace CandyProject
                 ObjectPoolManager.Instance.Return(levelButtonPrefab, child.gameObject);
         }
 
-        private void EnterLevelContainer()
+        public void OpenLevelContainer()
         {
             
             uiContainer.gameObject.SetActive(true);

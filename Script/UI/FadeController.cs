@@ -10,7 +10,6 @@ namespace CandyProject
         private CanvasGroup canvasGroup;
         private Image fadeImage;
         public float fadeDuration = 1f;
-        public float DeltaTime;
 
 
         private void Start()
@@ -18,11 +17,6 @@ namespace CandyProject
             canvasGroup = GetComponentInChildren<CanvasGroup>();
             fadeImage = GetComponentInChildren<Image>();
             canvasGroup.alpha = 0;
-        }
-
-        private void Update()
-        {
-            DeltaTime = Time.deltaTime;
         }
 
         public IEnumerator  FadeIn()

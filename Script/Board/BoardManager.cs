@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace CandyProject
@@ -7,7 +9,7 @@ namespace CandyProject
     public enum TileType
     {
         BlankSpace,
-        Breakable,
+        Crate,
         none
     }
 
@@ -17,6 +19,13 @@ namespace CandyProject
         public int posX;
         public int posY;
         public TileType tileType;
+
+        public TileKind(int posX, int posY, TileType tileType)
+        {
+            this.posX = posX;
+            this.posY = posY;
+            this.tileType = tileType;
+        }
     }
 
     public class BoardManager : MonoBehaviour
@@ -29,14 +38,16 @@ namespace CandyProject
         [Header("Prefabs & Data")]
         [SerializeField] private GemData[] gemDatas;
         [SerializeField] private GameObject gemPrefab;
-        [SerializeField] private GameObject boardTile;
-        [SerializeField] private GameObject bonusGemPrefab;
+
+        //BG Board 
+        //[SerializeField] private GameObject boardTile;
+        [SerializeField] private GameObject cratePrefab;
 
         [Header("Runtime Data")]
         public Gem[,] gems;
         public List<Vector2Int> matches;
-        public Transform boardTileTransform;
-        
+        //public Transform boardTileTransform;
+
         [Header("Subsystems")]
         private BoardGenerator boardGenerator;
         private SwapSystem swapSystem;
@@ -47,7 +58,11 @@ namespace CandyProject
         [Header("Tile Gem Bonus")]
         public bool[,] obstacle;
         public TileKind[] tileKinds;
-        public BonusGem[,] bonusGem;
+        public Crate[,] crates;
+
+        [Header("Sound clip")]
+        [SerializeField] private AudioClip lose;
+        [SerializeField] private AudioClip win;
 
         [Header("Level Manager")]
         public LevelManager LevelManager { get; private set; }
@@ -65,9 +80,21 @@ namespace CandyProject
             width = LevelManager.LevelData.width;
             height = LevelManager.LevelData.height;
 
+
+            tileKinds = new TileKind[LevelManager.LevelData.tileKinds.Count()];
+
+            for(int i = 0; i < tileKinds.Count(); i++)
+            {
+                tileKinds[i] = new TileKind(
+                    LevelManager.LevelData.tileKinds[i].posX, 
+                    LevelManager.LevelData.tileKinds[i].posY, 
+                    LevelManager.LevelData.tileKinds[i].tileType);
+            }
+
+
             gems = new Gem[width, height];
             obstacle = new bool[width, height];
-            bonusGem = new BonusGem[width, height];
+            crates = new Crate[width, height];
 
             for (int i = 0; i < obstacle.GetLength(0); i++)
             {
@@ -81,9 +108,9 @@ namespace CandyProject
             int initialSize = width * height;
 
             ObjectPoolManager.Instance.CreatePool(gemPrefab, initialSize);
-            ObjectPoolManager.Instance.CreatePool(boardTile, initialSize);
-            ObjectPoolManager.Instance.CreatePool(bonusGemPrefab, initialSize);
-            
+            //ObjectPoolManager.Instance.CreatePool(boardTile, initialSize);
+            ObjectPoolManager.Instance.CreatePool(cratePrefab, 5);
+
             boardGenerator.GenerateBoard();
 
             if (CheckDeadLock)
@@ -118,20 +145,20 @@ namespace CandyProject
                             gems[x, y] = null;
                         }
 
-                        if (bonusGem[x, y] != null)
+                        if (crates[x, y] != null)
                         {
-                            ObjectPoolManager.Instance.Return(bonusGemPrefab, bonusGem[x, y].gameObject);
-                            bonusGem[x, y] = null;
+                            ObjectPoolManager.Instance.Return(cratePrefab, crates[x, y].gameObject);
+                            crates[x, y] = null;
                         }
                     }
                 }
             }
 
-            var tiles = GameObject.FindGameObjectsWithTag("BoardTile");
-            foreach (var tile in tiles)
-            {
-                ObjectPoolManager.Instance.Return(boardTile, tile);
-            }
+            //var tiles = GameObject.FindGameObjectsWithTag("BoardTile");
+            //foreach (var tile in tiles)
+            //{
+            //    ObjectPoolManager.Instance.Return(boardTile, tile);
+            //}
 
             Debug.Log("Board cleared successfully.");
         }
@@ -157,8 +184,17 @@ namespace CandyProject
         public float CellSize => cellSize;
         public GemData[] GemDatas => gemDatas;
         public GameObject GemPrefab => gemPrefab;
-        public GameObject BoardTile => boardTile;
-        public GameObject BonusGemPrefab => bonusGemPrefab;
+
+        public AudioClip LoseAudio => lose;
+        public AudioClip WinAudio => win;
+        //public GameObject BoardTile => boardTile;
+        public GameObject CratePrefab => cratePrefab;
+
+        public bool IsInsideBoard(Vector2Int p)
+        {
+            return p.x >= 0 && p.x < width &&
+                p.y >= 0 && p.y < height;
+        }
 
 
         public GemType GetRandomGemType()
@@ -178,7 +214,7 @@ namespace CandyProject
             }
 
             if (validGems.Count == 0)
-                return GemType.Red; 
+                return GemType.Red;
 
             int randomIndex = UnityEngine.Random.Range(0, validGems.Count);
             return validGems[randomIndex].TypeOfGem;
@@ -196,11 +232,13 @@ namespace CandyProject
         public void ClearMatchedGems() =>
             refillSystem.ClearMatchedGems();
 
+        public void CollapsingGem() => refillSystem.Collapsing();
+
         public void TriggerSwapBoom(Gem gemA, Gem gemB) =>
             boomHandler.TriggerSwapBoom(gemA, gemB);
 
-        public void TriggerBoom(Gem gem) =>
-            boomHandler.TriggerBoom(gem);
+        //public void TriggerBoom(Gem gem) =>
+        //    boomHandler.TriggerBoom(gem);
 
         public bool CheckDeadLock =>
             swapSystem.IsDeadlock();
@@ -208,7 +246,7 @@ namespace CandyProject
         public void ShuffleBoard() =>
             boardGenerator.ShuffleBoard();
 
-        public List<Gem> ListMatchesSwap() 
+        public List<Gem> ListMatchesSwap()
             => swapSystem.ListMatches();
     }
 }

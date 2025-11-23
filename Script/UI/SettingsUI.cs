@@ -53,13 +53,13 @@ namespace CandyProject
         public void OpenSettings()
         {
             settingPanel.gameObject.SetActive(true);
-            GameManager.Instance.SetGameState(GameState.Waiting);
+            GameManager.Instance.TogglePause();
         }
 
         public void CloseSetting()
         {
             settingPanel.gameObject.SetActive(false);
-            GameManager.Instance.SetGameState(GameState.Playing);
+            GameManager.Instance.TogglePause();
         }
 
         private void OnBackToMenuClicked()
@@ -70,7 +70,7 @@ namespace CandyProject
         {
             levelManager.Init(levelManager.LevelData);
             CloseSetting();
-            StartCoroutine(WaitResetLevel());
+            GameManager.Instance.StartCoroutine(WaitResetLevel());
         }
 
         private IEnumerator WaitResetLevel()

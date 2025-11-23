@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gemName: VerticalBonus
   gemType: 8
-  spriteAtlas: {fileID: 100100200, guid: 4f134f9d49e86b54dacc816f9f8cb8d0, type: 3}
+  spriteAtlas: {fileID: 100100200, guid: c32ef0dbd437c074ab351a74d2605dd6, type: 3}
   spriteName: VerticalBonus
   scoreValue: 10
   destroyEffect: {fileID: 2465174129270366692, guid: bd8bf1a561d13b74180f9e6f46160f08, type: 3}

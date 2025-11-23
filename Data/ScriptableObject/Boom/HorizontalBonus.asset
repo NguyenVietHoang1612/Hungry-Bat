@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gemName: HorizontalBonus
   gemType: 7
-  spriteAtlas: {fileID: 100100200, guid: 4f134f9d49e86b54dacc816f9f8cb8d0, type: 3}
+  spriteAtlas: {fileID: 100100200, guid: c32ef0dbd437c074ab351a74d2605dd6, type: 3}
   spriteName: HorizontalBonus
   scoreValue: 10
   destroyEffect: {fileID: 2465174129270366692, guid: d382967818943f84087b5c41c47e3f18, type: 3}
