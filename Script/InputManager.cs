@@ -1,8 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace CandyProject
 {
+    public enum InputMode
+    {
+        Normal,
+        UseInventoryGem
+    }
+
     public class InputManager : Singleton<InputManager>
     {
         private InputSystem_Actions inputActions;
@@ -20,6 +27,12 @@ namespace CandyProject
         [SerializeField] float timeMove = 0.1f;
 
         [SerializeField] HintManager hintManager;
+
+        [field: SerializeField] public InputMode Mode { get; private set; } = InputMode.Normal;
+
+        private GemData pendingGemData = null;
+
+        public static event Action OnItemUsed;
         private void OnEnable()
         {
             if (inputActions == null)
@@ -30,7 +43,6 @@ namespace CandyProject
 
             inputActions.UI.Click.started += OnClickDown;
             inputActions.UI.Click.canceled += OnClickUp;
-
 
 
             inputActions.Enable();
@@ -65,19 +77,29 @@ namespace CandyProject
         private void OnClickDown(InputAction.CallbackContext ctx)
         {
             if (hintManager != null)
+            { 
+                hintManager.ClearHintMark(); 
+            }
+
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(
+                new Vector3(worldPos.x, worldPos.y, 0));
+
+            if (GameManager.Instance.Board != null)
             {
-                hintManager.ClearHintMark();
+                Vector2Int grid = WorldToGrid(mousePos);
+                if (Mode == InputMode.UseInventoryGem)
+                {
+                    TryUseInventoryGem(grid);
+                    return;
+                }
             }
             
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(
-            new Vector3(worldPos.x, worldPos.y, 0));
-
             Collider2D hit = Physics2D.OverlapPoint(mousePos);
 
             if (hit != null)
             {
                 Gem gem = hit.GetComponent<Gem>();
-                
+
                 if (gem != null)
                 {
                     gem.SetColorGemSelected();
@@ -85,7 +107,6 @@ namespace CandyProject
                     mouseDownPos = mousePos;
                     isDragging = true;
                 }
-
             }
         }
 
@@ -116,10 +137,77 @@ namespace CandyProject
                 return dragDir.y > 0 ? Vector2Int.up : Vector2Int.down;
         }
 
+        private void TryUseInventoryGem(Vector2Int grid)
+        {
+            BoardManager board = GameManager.Instance.Board;
+
+            if (!board.IsInsideBoard(grid))
+            {
+                ExitUseItemMode();
+                return;
+            }
+            
+
+            if (board.crates[grid.x, grid.y] != null) return;
+            if (board.obstacle[grid.x, grid.y]) return;
+           
+
+            Gem oldGem = board.gems[grid.x, grid.y];
+
+            if (oldGem != null)
+            {
+                oldGem.ReturnPoolGem(board.GemPrefab);
+                board.gems[grid.x, grid.y] = null;
+            }
+
+            Vector2 spawnWorld = (Vector2)grid * board.CellSize;
+
+            Gem newGem = board.CreateGem(spawnWorld, pendingGemData);
+            newGem.gridPos = grid;
+
+            board.gems[grid.x, grid.y] = newGem;
+
+            ResourceManager.Instance.UseItem(pendingGemData);
+            GameManager.Instance.SaveResources();
+            ExitUseItemMode();
+
+            OnItemUsed?.Invoke();
+        }
+
+
+        private Vector2Int WorldToGrid(Vector2 worldPos)
+        {
+            int x = Mathf.RoundToInt(worldPos.x / GameManager.Instance.Board.CellSize);
+            int y = Mathf.RoundToInt(worldPos.y / GameManager.Instance.Board.CellSize);
+            return new Vector2Int(x, y);
+        }
+
+        public void EnterUseItemMode(GemData gemData)
+        {
+            pendingGemData = gemData;
+            
+            if (ResourceManager.Instance.BoostersIV[pendingGemData] <= 0)
+            {
+                ExitUseItemMode();
+            }
+            else
+            {
+                Mode = InputMode.UseInventoryGem;
+            }
+            
+        }
+
+        public void ExitUseItemMode()
+        {
+            Mode = InputMode.Normal;
+            pendingGemData = null;
+        }
+
         public void RegisterHintManager(HintManager hintManager)
         {
             this.hintManager = hintManager;
         }
+
 
 
     }

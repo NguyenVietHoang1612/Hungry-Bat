@@ -13,13 +13,19 @@ namespace CandyProject
         public int StarLevel { get; private set; }
         public LevelData LevelData => levelData;
         public List<GemGoal> GemGoals { get; private set; }
-        public UIAchievedResults uiAchievedResults;
 
         public event Action<int> OnScoreChanged;
         public event Action<int> OnStarChanged;
         public event Action<List<GemGoal>, Gem> OnGemGoalsUpdated;
         public event Action OnMoveRemainingUpdated;
         public event Action OnRestartLevel;
+
+        [Header("Sound clip")]
+        [SerializeField] private AudioClip lose;
+        [SerializeField] private AudioClip win;
+
+        public UIAchievedResults uiAchievedResults;
+        private bool isEndGameAudioPlayed = false;
         private void Awake()
         {
             if (GameManager.Instance != null)
@@ -28,7 +34,6 @@ namespace CandyProject
                 GameManager.Instance.StartLevel();
             }
         }
-
         public void Init(LevelData data)
         {
             levelData = data;
@@ -112,6 +117,29 @@ namespace CandyProject
             return true; 
         }
 
-        
+        public void HandleWinLevel()
+        {
+            if (!isEndGameAudioPlayed)
+            {
+                isEndGameAudioPlayed = true;
+                ResourceManager.Instance.AddGold(levelData.gold);
+                SoundManager.Instance.PlayOneShotSfx(win);
+            }
+            GameManager.Instance.LevelComplete(CurrentScore);
+            uiAchievedResults.UpdateAchirved();
+            uiAchievedResults.ShowAchievedResults();
+        }
+
+        public void HandleLose()
+        {
+            if (!isEndGameAudioPlayed)
+            {
+                isEndGameAudioPlayed = true;
+                ResourceManager.Instance.UseHealth();
+                SoundManager.Instance.PlayOneShotSfx(lose);
+            }
+            uiAchievedResults.UpdateAchirved();
+            uiAchievedResults.ShowAchievedResults();
+        }
     }
 }

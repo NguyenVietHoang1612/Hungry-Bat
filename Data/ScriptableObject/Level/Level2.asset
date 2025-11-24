@@ -45,7 +45,7 @@ MonoBehaviour:
     posY: 3
     tileType: 1
   targetScore: 350
-  movesLimit: 20
+  movesLimit: 15
   hasTimeLimit: 0
   timeLimit: 0
   gemGoalDatas:
@@ -58,3 +58,4 @@ MonoBehaviour:
   oneStarScore: 80
   twoStarScore: 200
   threeStarScore: 320
+  gold: 13

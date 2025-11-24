@@ -32,6 +32,11 @@ namespace CandyProject
             spriteRenderer.sprite = gemData.GetSprite();
             spriteRenderer.color = Color.white;
             name = data.gemName;
+
+            if (gemData.IsBoom && gemData.gemType == GemType.ArrowVertical)
+            {
+                isVertical = true;
+            }
             isMatch = false;
         }
 

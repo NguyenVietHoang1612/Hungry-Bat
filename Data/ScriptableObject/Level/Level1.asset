@@ -41,3 +41,4 @@ MonoBehaviour:
   oneStarScore: 40
   twoStarScore: 110
   threeStarScore: 185
+  gold: 10

@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 479e3a24d4f25b3478068099800041ea, type: 3}
   m_Name: HorizontalBonus
   m_EditorClassIdentifier: 
-  gemName: HorizontalBonus
+  gemName: lightning_Horizontal
   gemType: 7
   spriteAtlas: {fileID: 100100200, guid: c32ef0dbd437c074ab351a74d2605dd6, type: 3}
-  spriteName: HorizontalBonus
+  spriteName: lightning_Horizontal
   scoreValue: 10
   destroyEffect: {fileID: 2465174129270366692, guid: d382967818943f84087b5c41c47e3f18, type: 3}
   destroySound: {fileID: 8300000, guid: cbd6e7774d789364090f22bb0271cf88, type: 3}

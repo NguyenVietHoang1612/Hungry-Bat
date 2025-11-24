@@ -6,14 +6,21 @@ namespace CandyProject
     {
         [SerializeField] private Transform uiContainer;
         [SerializeField] private Transform levelContainer;
+        [SerializeField] private Transform resourceTransForm;
         [SerializeField] private GameObject levelButtonPrefab;
-        [SerializeField] private GameObject newGameButton;
+        [SerializeField] private GameObject playButton;
 
         private void Start()
         {
             ObjectPoolManager.Instance.CreatePool(levelButtonPrefab, GameManager.Instance.AllLevelData.Count);
             GameManager.Instance.LoadProgress();
             GenerateLevelButtons();
+
+            if (GameManager.Instance.AutoOpenLevelSelect)
+            {
+                GameManager.Instance.AutoOpenLevelSelect = false; 
+                OpenLevelContainer();  
+            }
         }
 
         private void GenerateLevelButtons()
@@ -49,16 +56,17 @@ namespace CandyProject
 
         public void OpenLevelContainer()
         {
-            
             uiContainer.gameObject.SetActive(true);
-            newGameButton.SetActive(false);
+            playButton.SetActive(false);
+            resourceTransForm.gameObject.SetActive(true);
         }
 
         public void ExitLevelContainer()
         {
             ClearLevelContainer();
             uiContainer.gameObject.SetActive(false);
-            newGameButton.SetActive(true);
+            playButton.SetActive(true);
+            resourceTransForm.gameObject.SetActive(false);
         }
     }
 }

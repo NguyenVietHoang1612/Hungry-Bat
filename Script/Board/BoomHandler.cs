@@ -89,6 +89,7 @@ namespace CandyProject
             {
                 Debug.Log("All gem Match");
                 GetAllGem();
+                board.ClearMatchedGems();
                 return;
             }
 
@@ -104,6 +105,8 @@ namespace CandyProject
                     {
                         case GemType.BoomColor:
                             GetAllSameType(gemB.TypeOfGem);
+                            gemA.isMatch = true;
+                            gemB.isMatch = true;
                             break;
                         case GemType.BoomWrapped:
                             GetArroundGem(gemA);
@@ -128,6 +131,7 @@ namespace CandyProject
                     {
                         case GemType.BoomColor:
                             gemA.isMatch = true;
+                            gemB.isMatch = true;
                             GetAllSameType(gemB.TypeOfGem);
                             break;
                         case GemType.BoomWrapped:
@@ -183,7 +187,7 @@ namespace CandyProject
 
         private IEnumerator AnimateClearance(Vector2Int pos, Vector2Int dir)
         {
-            float delayPerGem = 0.15f;
+            float delayPerGem = 0.05f;
 
             while (board.IsInsideBoard(pos))
             {

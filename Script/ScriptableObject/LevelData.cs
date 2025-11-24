@@ -31,6 +31,8 @@ namespace CandyProject
         public int twoStarScore;
         public int threeStarScore;
 
+        [Header("Rewards")]
+        public int gold;
     }
 
     [System.Serializable]

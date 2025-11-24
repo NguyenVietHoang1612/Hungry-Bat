@@ -6,7 +6,6 @@ namespace CandyProject
     public class RefillSystem
     {
         private BoardManager board;
-        private bool isEndGameAudioPlayed = false;
         public RefillSystem(BoardManager board)
         {
             this.board = board;
@@ -227,25 +226,12 @@ namespace CandyProject
 
             if (board.LevelManager.IsLevelComplete())
             {
-                if (!isEndGameAudioPlayed)
-                {
-                    isEndGameAudioPlayed = true;
-                    SoundManager.Instance.PlayOneShotSfx(board.WinAudio);
-                }
-                GameManager.Instance.LevelComplete(board.LevelManager.CurrentScore);
-                board.LevelManager.uiAchievedResults.UpdateAchirved();
-                board.LevelManager.uiAchievedResults.ShowAchievedResults();
+                board.LevelManager.HandleWinLevel();
                 yield break;
             }
             else if (!board.LevelManager.IsLevelComplete() && board.LevelManager.RemainingMoves == 0)
             {
-                if (!isEndGameAudioPlayed)
-                {
-                    isEndGameAudioPlayed = true;
-                    SoundManager.Instance.PlayOneShotSfx(board.LoseAudio);
-                }
-                board.LevelManager.uiAchievedResults.UpdateAchirved();
-                board.LevelManager.uiAchievedResults.ShowAchievedResults();
+                board.LevelManager.HandleLose();
                 yield break;
             }
 
@@ -283,8 +269,6 @@ namespace CandyProject
                 }
             }
         }
-
-
     }
 
 }

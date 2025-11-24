@@ -20,6 +20,8 @@ namespace CandyProject
         [SerializeField] private Button nextLevel;
         [SerializeField] private Button reStartLevel;
         [SerializeField] private TMP_Text scoreAmount;
+        [SerializeField] private Transform goldRewardTransform;
+        [SerializeField] private TMP_Text goldAmount;
         [SerializeField] Sprite starActive;
 
         [Header("UI Settings")]
@@ -53,16 +55,18 @@ namespace CandyProject
             if (levelManager.RemainingMoves == 0 && !levelManager.IsLevelComplete())
             {
                 loseIcon.gameObject.SetActive(true);
-                textResult.text = "Lose";
+                goldRewardTransform.gameObject.SetActive(false);
                 nextLevel.gameObject.SetActive(false);
                 starsContainer.gameObject.SetActive(false);
+                textResult.text = "Lose";
             }
             else
             {
                 int starLevel = levelManager.StarLevel;
-                textResult.text = "COMPLETE!";
                 loseIcon.gameObject.SetActive(false);
                 starsContainer.gameObject.SetActive(true);
+                goldRewardTransform.gameObject.SetActive(true);
+                goldAmount.text = levelManager.LevelData.gold.ToString();
 
                 for (int i = 0; i < Stars.Length; i++)
                 {
@@ -73,6 +77,7 @@ namespace CandyProject
                     }
                 }
 
+                textResult.text = "COMPLETE!";
             }         
             scoreAmount.text = levelManager.CurrentScore.ToString();
         }
@@ -103,6 +108,7 @@ namespace CandyProject
         private void OnBackToMenuClicked()
         {
             GameManager.Instance.ExitLevel();
+            GameManager.Instance.AutoOpenLevelSelect = true;
         }
         private void OnReStartLevelClicked()
         {

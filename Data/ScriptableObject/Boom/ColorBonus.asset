@@ -16,6 +16,6 @@ MonoBehaviour:
   gemType: 9
   spriteAtlas: {fileID: 100100200, guid: c32ef0dbd437c074ab351a74d2605dd6, type: 3}
   spriteName: icon_potion
-  scoreValue: 30
-  destroyEffect: {fileID: 8664940263705244825, guid: 84eee93d37232844796a483b1af2b079, type: 3}
+  scoreValue: 20
+  destroyEffect: {fileID: 0}
   destroySound: {fileID: 0}

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace CandyProject
 {
     [Serializable]
-    public class SaveData
+    public class ProgressData
     {
         public List<LevelProgress> progressList;
     }
@@ -19,25 +19,41 @@ namespace CandyProject
         public float volumeSFX = 1f;
     }
 
+
+    [Serializable]
+    public class ResourceData
+    {
+        public float gold = 200;
+        public float health;
+        public Dictionary<GemData, int> boosters;
+    }
+
     public static class SaveSystem
     {
-        private const string SaveFileName = "save.dat";
-        private const string SecretKey = "CandyCrushSecretKey2025"; // key mã hóa
+        private const string SecretKey = "CandyCrushSecretKey2025";
 
-        private static string SavePath => Path.Combine(Application.persistentDataPath, SaveFileName);
+        private const string ProgressFileName = "save_progress.dat";
+        private const string SettingsFileName = "save_settings.dat";
+        private const string ResourceFileName = "save_settings.dat";
+
+
+        private static string ProgressPath => Path.Combine(Application.persistentDataPath, ProgressFileName);
+        private static string SettingsPath => Path.Combine(Application.persistentDataPath, SettingsFileName);
+        private static string ResourcePath => Path.Combine(Application.persistentDataPath, ResourceFileName);
+
 
         // ==================== SAVE ====================
         public static void SaveProgress(List<LevelProgress> levelProgressList)
         {
             try
             {
-                SaveData saveData = new SaveData { progressList = levelProgressList };
+                ProgressData saveData = new ProgressData { progressList = levelProgressList };
 
                 string json = JsonUtility.ToJson(saveData);
                 string encrypted = Encrypt(json, SecretKey);
 
-                File.WriteAllText(SavePath, encrypted);
-                Debug.Log($"Game progress saved at: {SavePath}");
+                File.WriteAllText(ProgressPath, encrypted);
+                Debug.Log($"Game progress saved at: {ProgressPath}");
             }
             catch (Exception e)
             {
@@ -50,56 +66,50 @@ namespace CandyProject
             try
             {
                 string json = JsonUtility.ToJson(settingsData);
-                string encrypted = Encrypt(json, SecretKey);    
-                File.WriteAllText(SavePath, encrypted);
-                Debug.Log($"Game VolumnSound saved at: {SavePath}");
+                string encrypted = Encrypt(json, SecretKey);
+
+                File.WriteAllText(SettingsPath, encrypted);
+                Debug.Log($"Game VolumnSound saved at: {SettingsPath}");
             }
             catch (Exception e)
             {
-                Debug.LogError("Failed to save progress: " + e.Message);
+                Debug.LogError("Failed to save Setting: " + e.Message);
             }
         }
 
-        public static SettingsData LoadSetings()
+        public static void SaveResource(ResourceData resourceData)
         {
             try
             {
-                if (!File.Exists(SavePath))
-                {
-                    Debug.Log("Save file not found. Using default data.");
-                    return null;
-                }
-                string encrypted = File.ReadAllText(SavePath);
-                string decrypted = Decrypt(encrypted, SecretKey);
-                SettingsData settingsData = JsonUtility.FromJson<SettingsData>(decrypted);
+                ResourceData resource = new ResourceData {gold = resourceData.gold, health = resourceData.health, boosters = resourceData.boosters };
 
-                Debug.Log($"Game Load settings successfully");
-                return settingsData;
+                string json = JsonUtility.ToJson(resource);
+                string encrypted = Encrypt(json, SecretKey);
+                File.WriteAllText(ResourcePath, encrypted);
+                Debug.Log($"Game VolumnSound saved at: {ResourcePath}");
             }
             catch (Exception e)
             {
-                Debug.LogWarning("Error loading save file, reset progress: " + e.Message);
-                return null;
+                Debug.LogError("Failed to save resource: " + e.Message);
             }
+        }
 
-}
-
-
+        
 
         // ==================== LOAD ====================
         public static List<LevelProgress> LoadProgress(List<LevelProgress> defaultList)
         {
             try
             {
-                if (!File.Exists(SavePath))
+                if (!File.Exists(ProgressPath))
                 {
                     Debug.Log("Save file not found. Using default data.");
                     return defaultList;
                 }
 
-                string encrypted = File.ReadAllText(SavePath);
+                string encrypted = File.ReadAllText(ProgressPath);
                 string decrypted = Decrypt(encrypted, SecretKey);
-                SaveData saveData = JsonUtility.FromJson<SaveData>(decrypted);
+                ProgressData saveData = JsonUtility.FromJson<ProgressData>(decrypted);
 
                 if (saveData == null || saveData.progressList == null)
                 {
@@ -135,13 +145,77 @@ namespace CandyProject
             }
         }
 
+        public static SettingsData LoadSetings()
+        {
+            try
+            {
+                if (!File.Exists(SettingsPath))
+                {
+                    Debug.Log("Save file not found. Using default data.");
+                    return null;
+                }
+                string encrypted = File.ReadAllText(SettingsPath);
+                string decrypted = Decrypt(encrypted, SecretKey);
+                SettingsData settingsData = JsonUtility.FromJson<SettingsData>(decrypted);
+
+                Debug.Log($"Game Load settings successfully");
+                return settingsData;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("Error loading save file, reset progress: " + e.Message);
+                return null;
+            }
+
+        }
+
+        public static ResourceData LoadResource()
+        {
+            try
+            {
+                if (!File.Exists(ResourcePath))
+                {
+                    Debug.Log("Save file not found. Using default data.");
+                    return null;
+                }
+
+                string encrypted = File.ReadAllText(ResourcePath);
+                string decrypted = Decrypt(encrypted, SecretKey);
+                ResourceData resourceData = JsonUtility.FromJson<ResourceData>(decrypted);
+                Debug.Log($"Game Load resource successfully");
+                return resourceData;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("Error loading save file, reset progress: " + e.Message);
+                return null;
+            }
+        }
 
         // ==================== DELETE SAVE ====================
-        public static void DeleteSave()
+        public static void DeleteProgressSave()
         {
-            if (File.Exists(SavePath))
+            if (File.Exists(ProgressPath))
             {
-                File.Delete(SavePath);
+                File.Delete(ProgressPath);
+                Debug.Log("Save file deleted.");
+            }
+        }
+
+        public static void DeleteSettingSave()
+        {
+            if (File.Exists(SettingsPath))
+            {
+                File.Delete(SettingsPath);
+                Debug.Log("Save file deleted.");
+            }
+        }
+
+        public static void DeleteResourceSave()
+        {
+            if (File.Exists(ResourcePath))
+            {
+                File.Delete(ResourcePath);
                 Debug.Log("Save file deleted.");
             }
         }

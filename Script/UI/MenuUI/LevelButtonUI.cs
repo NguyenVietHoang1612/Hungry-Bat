@@ -13,8 +13,20 @@ namespace CandyProject
         [SerializeField] private Button playButton;
         [SerializeField] private Sprite starActive;
 
+        [SerializeField] private PanelLevelUI panelLevelUI;
+
         private int levelIndex;
         private bool isUnlocked;
+
+        private void Start()
+        {
+            panelLevelUI = FindFirstObjectByType<PanelLevelUI>();
+
+            if (panelLevelUI == null )
+            {
+                Debug.Log("panelLevelUI not Found");
+            }
+        }
 
         public void Setup(LevelProgress progress, int index)
         {
@@ -54,7 +66,7 @@ namespace CandyProject
             if (!isUnlocked) return;
 
             GameManager.Instance.SetCurrentIndex(levelIndex);
-            GameManager.Instance.LoadScene();
+            panelLevelUI.OpenUI();
         }
     }
 }

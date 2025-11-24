@@ -116,6 +116,8 @@ namespace CandyProject
                 {
                     if (board.gems[x, y] == null && board.obstacle[x, y]) continue;
 
+                    if (board.crates[x, y] != null) continue;
+
                     newBoard.Add(board.gems[x, y]);
                     
                 }

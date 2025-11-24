@@ -16,9 +16,19 @@ namespace CandyProject
         [SerializeField] Image[] stars;
         private void Start()
         {
+            InitUI();
+        }
+
+        private void OnEnable()
+        {
+            if (levelManager == null)
+            {
+                Debug.Log("LevelManager not found");
+                return;
+            }
+
             levelManager.OnScoreChanged += UpdateScoreUI;
             levelManager.OnMoveRemainingUpdated += UpdateRemainingMoveUI;
-            InitUI();
         }
 
         private void OnDisable()
@@ -57,6 +67,7 @@ namespace CandyProject
         {
             scoreSlider.maxValue = levelManager.LevelData.targetScore;
             scoreSlider.value = 0;
+            remainingMoves.text = levelManager.RemainingMoves.ToString();
 
             foreach (var star in stars)
             {

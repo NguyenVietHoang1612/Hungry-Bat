@@ -60,10 +60,6 @@ namespace CandyProject
         public TileKind[] tileKinds;
         public Crate[,] crates;
 
-        [Header("Sound clip")]
-        [SerializeField] private AudioClip lose;
-        [SerializeField] private AudioClip win;
-
         [Header("Level Manager")]
         public LevelManager LevelManager { get; private set; }
 
@@ -185,8 +181,6 @@ namespace CandyProject
         public GemData[] GemDatas => gemDatas;
         public GameObject GemPrefab => gemPrefab;
 
-        public AudioClip LoseAudio => lose;
-        public AudioClip WinAudio => win;
         //public GameObject BoardTile => boardTile;
         public GameObject CratePrefab => cratePrefab;
 

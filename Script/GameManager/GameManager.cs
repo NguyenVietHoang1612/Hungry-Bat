@@ -26,7 +26,7 @@ namespace CandyProject
         private List<LevelProgress> levelProgressList = new List<LevelProgress>();
 
         [SerializeField] private LevelManager levelManager;
-        private int currentLevelIndex;
+        [SerializeField] private int currentLevelIndex;
         public LevelData CurrentLevelData { get; private set; }
         public GameState CurrentState => currentState;
 
@@ -35,6 +35,9 @@ namespace CandyProject
         [SerializeField] private PlayEffectController playEffectController;
 
         [SerializeField] AudioClip musicMenu;
+
+        [Header("Flags")]
+        public bool AutoOpenLevelSelect { get; set; } = false;
         protected override void Awake()
         {
             base.Awake();
@@ -104,6 +107,12 @@ namespace CandyProject
             SaveSystem.SaveSettings(settingsData);
         }
 
+        public void SaveResources()
+        {
+            ResourceData resourceData = new ResourceData() { gold = ResourceManager.Instance.CurrentGold, health = ResourceManager.Instance.CurrentHealth, boosters = ResourceManager.Instance.BoostersIV };
+            SaveSystem.SaveResource(resourceData);
+        }
+
         public void LoadSettings()
         {
             var data = SaveSystem.LoadSetings();
@@ -115,7 +124,6 @@ namespace CandyProject
 
         public void LoadScene()
         {
-            
             StartCoroutine(LoadSceneWaitForSecond("SceneGame"));
         }
 
@@ -241,7 +249,9 @@ namespace CandyProject
                 levelProgressList[currentLevelIndex + 1].isUnlocked = true;
 
             SaveSystem.SaveProgress(levelProgressList);
+            SaveResources();
         }
+
 
         public void RegisterVFXController(PlayEffectController controller)
         {
@@ -310,5 +320,8 @@ namespace CandyProject
         }
 
         #endregion
+
+
+        public LevelData GetCurrentLevelData() => AllLevelData[currentLevelIndex];
     }
 }

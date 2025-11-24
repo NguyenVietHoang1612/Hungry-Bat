@@ -20,11 +20,25 @@ namespace CandyProject
         {
             levelData = levelManager.LevelData;
 
-            InitializeUI();
+            InitializeUI();    
+        }
+
+        private void OnEnable()
+        {
+            if (levelManager == null)
+            {
+                Debug.Log("LevelManager not found");
+                return;
+            }
+
             levelManager.OnGemGoalsUpdated += UpdateUIConditionUI;
             levelManager.OnRestartLevel += InitializeUI;
+        }
 
-            
+        private void OnDisable()
+        {
+            levelManager.OnGemGoalsUpdated -= UpdateUIConditionUI;
+            levelManager.OnRestartLevel -= InitializeUI;
         }
 
         private void InitializeUI()
@@ -36,7 +50,7 @@ namespace CandyProject
                 if (goal == null || goal.gemData == null) continue;
 
                 GameObject gemGoalGO = Instantiate(gemGoalPrefab);
-                gemGoalGO.transform.parent = gemGoalListTransform;
+                gemGoalGO.transform.SetParent(gemGoalListTransform);
                 gemGoalGO.transform.localRotation = Quaternion.identity;
                 gemGoalGO.transform.localScale = Vector3.one;
                 var imageGemGoal = gemGoalGO.GetComponent<Image>();

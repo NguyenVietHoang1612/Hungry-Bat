@@ -11,7 +11,6 @@ namespace CandyProject
         private Image fadeImage;
         public float fadeDuration = 1f;
 
-
         private void Start()
         {
             canvasGroup = GetComponentInChildren<CanvasGroup>();

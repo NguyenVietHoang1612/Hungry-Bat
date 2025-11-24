@@ -65,6 +65,8 @@ namespace CandyProject
         private void OnBackToMenuClicked()
         {
             GameManager.Instance.ExitLevel();
+            ResourceManager.Instance.UseHealth(1);
+            GameManager.Instance.AutoOpenLevelSelect = true;
         }
         private void OnReStartLevelClicked()
         {

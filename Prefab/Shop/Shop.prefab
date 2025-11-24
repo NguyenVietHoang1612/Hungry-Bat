@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 1775985199097968612}
   - component: {fileID: 6081032029972753324}
   - component: {fileID: 3050289196772566436}
+  - component: {fileID: 1696924279877941031}
+  - component: {fileID: 2637028425838919391}
   m_Layer: 5
   m_Name: Shop
   m_TagString: Untagged
@@ -77,6 +79,32 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1696924279877941031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4688940048965282272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a74ebc435b1f247b406c1a39bcb546, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemSlotPrefab: {fileID: 2315380885661719548, guid: e28a3811f5ff7dc4993cde1ac0409ac9, type: 3}
+  itemSlotContainer: {fileID: 526756466905810303}
+--- !u!225 &2637028425838919391
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4688940048965282272}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &6647231622206383988
 GameObject:
   m_ObjectHideFlags: 0
