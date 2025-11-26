@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level3
   m_EditorClassIdentifier: 
   levelIndex: 3
-  levelName: Level3
+  levelName: Level 3
   width: 8
   height: 8
   tileKinds:
@@ -42,7 +42,7 @@ MonoBehaviour:
     posY: 5
     tileType: 1
   targetScore: 500
-  movesLimit: 1
+  movesLimit: 20
   hasTimeLimit: 0
   timeLimit: 0
   gemGoalDatas:

@@ -8,13 +8,13 @@ namespace CandyProject
     public class SwapSystem
     {
         private BoardManager board;
-
+        List<Gem> canMatches = new List<Gem>();
         public SwapSystem(BoardManager board)
         {
             this.board = board;
         }
 
-        public void TrySwap(Gem gem, Vector2Int dir, float timeReturn)
+        public void TrySwap(Gem gem, Vector2Int dir)
         {       
             Vector2Int targetPos = gem.gridPos + dir;
             if (!IsValid(targetPos)) return;
@@ -23,7 +23,7 @@ namespace CandyProject
             if (targetGem == null) return;
 
             SwapGems(gem, targetGem);
-            board.StartCoroutine(CheckSwapResult(gem, targetGem, timeReturn));
+            board.StartCoroutine(CheckSwapResult(gem, targetGem));
         }
 
         private bool IsValid(Vector2Int pos)
@@ -48,9 +48,9 @@ namespace CandyProject
         }
 
         // Check swap có match hay là boom không
-        private IEnumerator CheckSwapResult(Gem gemA, Gem gemB, float timeReturn)
+        private IEnumerator CheckSwapResult(Gem gemA, Gem gemB)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return GameManager.Instance.secondDelay;
 
             if ((gemA.GetGemData.IsBoom || gemB.GetGemData.IsBoom))
             {
@@ -67,12 +67,12 @@ namespace CandyProject
             bool hasMatch = gemA.isMatch || gemB.isMatch;
             if (!hasMatch)
             {
-                yield return new WaitForSeconds(timeReturn);
+                yield return GameManager.Instance.delay;
                 SwapGems(gemA, gemB);
             }
             else
             {
-                yield return new WaitForSeconds(0.1f);
+                yield return GameManager.Instance.secondDelay;
                 board.LevelManager.UseMove();
                 board.ClearMatchedGems();
             }
@@ -184,7 +184,7 @@ namespace CandyProject
             int width = board.Width;
             int height = board.Height;
 
-            List<Gem> canMatches = new List<Gem>();
+            canMatches.Clear();
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)

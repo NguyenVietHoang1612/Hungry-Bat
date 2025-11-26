@@ -1,9 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms.Impl;
 
 namespace CandyProject
 {
@@ -38,10 +36,20 @@ namespace CandyProject
 
         [Header("Flags")]
         public bool AutoOpenLevelSelect { get; set; } = false;
+        [field: SerializeField] public bool Effects { get; set; } = true;
+
+        [Header("Coroutine")]
+        public readonly WaitForSeconds delay = new WaitForSeconds(0.1f);
+        public readonly WaitForSeconds secondDelay = new WaitForSeconds(0.3f);
+        public readonly WaitForSeconds halfSecondDelay = new WaitForSeconds(0.5f);
+        public readonly WaitForSeconds oneSecondDelay = new WaitForSeconds(1f);
+        public readonly WaitForSeconds twoSecondDelay = new WaitForSeconds(2f);
         protected override void Awake()
         {
             base.Awake();
-            DontDestroyOnLoad(gameObject);
+            #if UNITY_ANDROID || UNITY_IOS
+                Application.targetFrameRate = 60;
+            #endif
             LoadSettings();
         }
 
@@ -59,13 +67,57 @@ namespace CandyProject
             
         }
 
-        #region Level Progress
+        #region Save Load
 
         public void LoadProgress()
         {
             InitializeProgressList();
             levelProgressList = SaveSystem.LoadProgress(levelProgressList);
         }
+      
+
+        public void SaveResources()
+        {
+            ResourceData resourceData = new ResourceData() 
+            { 
+                gold = ResourceManager.Instance.CurrentGold, 
+                health = ResourceManager.Instance.CurrentHealth, 
+                boosters = ResourceManager.Instance.BoostersIV 
+            };
+            SaveSystem.SaveResource(resourceData);
+        }
+
+        public void LoadResources()
+        {
+            var data = SaveSystem.LoadResource();
+            if (data == null) return;
+
+            ResourceManager.Instance.SetGold(data.gold);
+            ResourceManager.Instance.SetHealth(data.health);
+            ResourceManager.Instance.SetBoosterIV(data.boosters);
+        }
+
+        public void SaveSettings()
+        {
+            SettingsData settingsData = new SettingsData();
+            settingsData.volumeMusic = SoundManager.Instance.VolumnMusic;
+            settingsData.volumeSFX = SoundManager.Instance.VolumnSFX;
+            settingsData.enableEffect = Effects;
+            SaveSystem.SaveSettings(settingsData);
+        }
+        public void LoadSettings()
+        {
+            var data = SaveSystem.LoadSetings();
+            if (data == null) return;
+
+            SoundManager.Instance.SetMusicVolume(data.volumeMusic);
+            SoundManager.Instance.SetSFXVolume(data.volumeSFX);
+            Effects = data.enableEffect;
+        }
+
+        #endregion
+
+        #region Level Control
 
         void GetReferences()
         {
@@ -90,36 +142,9 @@ namespace CandyProject
 
         public List<LevelProgress> GetAllProgress() => levelProgressList;
 
-        #endregion
-
-        #region Level Control
-
         public void SetCurrentIndex(int index)
         {
             currentLevelIndex = Mathf.Clamp(index, 0, allLevelData.Count - 1);
-        }
-
-        public void SaveSettings()
-        {
-            SettingsData settingsData = new SettingsData();
-            settingsData.volumeMusic = SoundManager.Instance.VolumnMusic;
-            settingsData.volumeSFX = SoundManager.Instance.VolumnSFX;
-            SaveSystem.SaveSettings(settingsData);
-        }
-
-        public void SaveResources()
-        {
-            ResourceData resourceData = new ResourceData() { gold = ResourceManager.Instance.CurrentGold, health = ResourceManager.Instance.CurrentHealth, boosters = ResourceManager.Instance.BoostersIV };
-            SaveSystem.SaveResource(resourceData);
-        }
-
-        public void LoadSettings()
-        {
-            var data = SaveSystem.LoadSetings();
-            if (data == null) return;
-
-            SoundManager.Instance.SetMusicVolume(data.volumeMusic);
-            SoundManager.Instance.SetSFXVolume(data.volumeSFX);
         }
 
         public void LoadScene()
@@ -130,7 +155,7 @@ namespace CandyProject
         private IEnumerator LoadSceneWaitForSecond(string sceneName)
         {
             StartCoroutine(FadeController.Instance.FadeOut());
-            yield return new WaitForSeconds(1f); ;
+            yield return oneSecondDelay; 
             SceneManager.LoadScene(sceneName);
             Debug.Log("Load scene: " + sceneName);
             StartCoroutine(FadeController.Instance.FadeIn());
@@ -233,12 +258,10 @@ namespace CandyProject
             StartCoroutine(OnLevelComplete(score));
         }
         
-
-
         private IEnumerator OnLevelComplete(int score)
         {
-            yield return new WaitForSeconds(2f);
-            if (currentLevelIndex < 0 || currentLevelIndex >= levelProgressList.Count) yield break;
+            yield return twoSecondDelay;
+            if (currentLevelIndex < 0 || currentLevelIndex >= levelProgressList.Count || levelManager == null) yield break;
 
             var progress = levelProgressList[currentLevelIndex];
             progress.bestScore = Mathf.Max(progress.bestScore, score);

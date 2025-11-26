@@ -17,14 +17,15 @@ namespace CandyProject
     {
         public float volumeMusic = 1f;
         public float volumeSFX = 1f;
+        public bool enableEffect = true;
     }
 
 
     [Serializable]
     public class ResourceData
     {
-        public float gold = 200;
-        public float health;
+        public int gold = 200;
+        public int health;
         public Dictionary<GemData, int> boosters;
     }
 

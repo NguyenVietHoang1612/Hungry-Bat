@@ -77,7 +77,7 @@ namespace CandyProject
 
         private IEnumerator WaitResetLevel()
         {
-            yield return new WaitForSeconds(1f);
+            yield return GameManager.Instance.oneSecondDelay;
             GameManager.Instance.RestartLevel();
         }
     }

@@ -29,6 +29,7 @@ namespace CandyProject
             if (PlayerPrefs.HasKey("nextGainTime"))
             {
                 long binary = Convert.ToInt64(PlayerPrefs.GetString("nextGainTime"));
+                Debug.Log("TimeData: " + binary);
                 nextGainTime = DateTime.FromBinary(binary);
             }
             else
@@ -64,8 +65,9 @@ namespace CandyProject
 
         public void UpdateResource()
         {
-            goldAmount.text = ResourceManager.Instance.CurrentGold.ToString();
-            healthQuantity.text = ResourceManager.Instance.CurrentHealth.ToString();
+            goldAmount.SetText("{0}", ResourceManager.Instance.CurrentGold);
+            healthQuantity.SetText("{0}", ResourceManager.Instance.CurrentHealth);
+
         }
 
         private void Update()
@@ -104,7 +106,7 @@ namespace CandyProject
                 remain = nextGainTime - DateTime.Now;
             }
 
-            timerText.text = string.Format("{0:D2}:{1:D2}", remain.Minutes, remain.Seconds);
+            timerText.SetText("{0}:{1}", remain.Minutes, remain.Seconds);
         }
     }
 }

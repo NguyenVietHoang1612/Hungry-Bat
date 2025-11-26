@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level2
   m_EditorClassIdentifier: 
   levelIndex: 2
-  levelName: Level2
+  levelName: Level 2
   width: 8
   height: 8
   tileKinds:
@@ -32,20 +32,23 @@ MonoBehaviour:
   - posX: 3
     posY: 6
     tileType: 1
-  - posX: 6
+  - posX: 7
     posY: 3
     tileType: 1
   - posX: 2
-    posY: 4
-    tileType: 1
-  - posX: 4
-    posY: 2
-    tileType: 1
-  - posX: 3
     posY: 3
     tileType: 1
+  - posX: 5
+    posY: 3
+    tileType: 1
+  - posX: 0
+    posY: 3
+    tileType: 1
+  - posX: 4
+    posY: 6
+    tileType: 1
   targetScore: 350
-  movesLimit: 15
+  movesLimit: 25
   hasTimeLimit: 0
   timeLimit: 0
   gemGoalDatas:
@@ -54,7 +57,7 @@ MonoBehaviour:
   - gemData: {fileID: 11400000, guid: 2ddecd7bc6ae251468bbe4d4e324bc52, type: 2}
     requiredAmount: 10
   - gemData: {fileID: 11400000, guid: 3be8dbac75cdba247a9f683b728b48f4, type: 2}
-    requiredAmount: 5
+    requiredAmount: 6
   oneStarScore: 80
   twoStarScore: 200
   threeStarScore: 320

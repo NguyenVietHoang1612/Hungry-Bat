@@ -1,16 +1,20 @@
 ﻿using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 namespace CandyProject
 {
     public class RefillSystem
     {
         private BoardManager board;
+
         public RefillSystem(BoardManager board)
         {
             this.board = board;
         }
 
+        // Clear gem khi find Match
         public void ClearMatchedGems()
         {
             for (int x = 0; x < board.Width; x++)
@@ -43,7 +47,7 @@ namespace CandyProject
 
         private IEnumerator CollapsingGem()
         {
-            yield return new WaitForSeconds(0.2f);
+            yield return GameManager.Instance.delay;
 
             int width = board.Width;
             int height = board.Height;
@@ -51,10 +55,13 @@ namespace CandyProject
             CollapseVertical(width, height);
             CollapseDiagonalAndHorizontal(width, height);
 
-            yield return new WaitForSeconds(0.1f);
+            yield return board.StartCoroutine(board.MoveAllGemsCoroutine());
+
+            yield return GameManager.Instance.delay;
             board.StartCoroutine(RefillingGem());
         }
 
+        // rơi thẳng
         private void CollapseVertical(int width, int height)
         {
             for (int x = 0; x < width; x++)
@@ -62,7 +69,7 @@ namespace CandyProject
                 int emptyY = -1;
                 for (int y = 0; y < height; y++)
                 {
-                    if (board.obstacle[x, y] || board.crates[x, y])
+                    if (board.blankSpaces[x, y] || board.crates[x, y])
                     {
                         emptyY = -1;
                         continue;
@@ -76,8 +83,7 @@ namespace CandyProject
                     }
                     else if (emptyY != -1)
                     {
-
-                        board.gems[x, y].MoveTo(new Vector2Int(x, emptyY));
+                        board.gems[x, y].SetTarget(new Vector2Int(x, emptyY));
                         board.gems[x, emptyY] = board.gems[x, y];
                         board.gems[x, y] = null;
                         emptyY++;
@@ -101,8 +107,11 @@ namespace CandyProject
                     int startX = x;
                     int startY = y;
 
-                    // Thử rơi chéo sang phải nếu có crate/obstacle ở (cx+1,cy) và ô dưới của nó (cx+1,cy-1) trống
-                    while (true)
+                    int maxIterations = 9; 
+                    int iterations = 0;
+
+                    // Rơi chéo sang phải nếu có crate/obstacle ở (cx+1,cy) và ô dưới của nó (cx+1,cy-1) trống
+                    while (iterations < maxIterations)
                     {
                         int targetX = startX + 1;
                         int targetY = startY - 1;
@@ -110,50 +119,51 @@ namespace CandyProject
                         // điều kiện ô mục tiêu và ô crate nằm trong board
                         if (!IsInside(targetX, targetY) || !IsInside(startX + 1, startY)) break;
 
-                        bool neighbourHasBlock = board.obstacle[startX + 1, startY] || (board.crates[startX + 1, startY] != null);
-                        bool targetBelowFree = !board.obstacle[targetX, targetY] && (board.crates[targetX, targetY] == null) && (board.gems[targetX, targetY] == null);
+                        bool neighbourHasBlock = board.crates[startX + 1, startY] != null;
+                        bool targetBelowFree = board.crates[targetX, targetY] == null && board.gems[targetX, targetY] == null;
 
-                        // nếu bên dưới crate/obstacle là null => rơi chéo xuống ô dưới crate
+                        // nếu bên dưới crate là null => rơi chéo xuống ô dưới crate
                         if (neighbourHasBlock && targetBelowFree)
                         {
-                            board.gems[startX, startY].MoveTo(new Vector2Int(targetX, targetY));
+                            board.gems[startX, startY].SetTarget(new Vector2Int(targetX, targetY));
                             board.gems[targetX, targetY] = board.gems[startX, startY];
                             board.gems[startX, startY] = null;
 
-                            // cập nhật vị trí gem hiện tại để có thể tiếp tục rơi thêm (nếu cần)
+                            // cập nhật vị trí gem hiện tại để có thể tiếp tục rơi thêm
                             startX = targetX;
                             startY = targetY;
                             currentGem = board.gems[startX, startY];
 
-                            // sau khi di chuyển, tiếp tục vòng while để dò tiếp
+                            iterations++;
                             continue;
                         }
 
                         break;
                     }
 
-                    // Thử rơi chéo sang trái (tương tự)
+                    iterations = 0;
                     startX = x;
                     startY = y;
-                    while (true)
+                    while (iterations < maxIterations)
                     {
                         int nx = startX - 1;
                         int ny = startY - 1;
 
                         if (!IsInside(nx, ny) || !IsInside(startX - 1, startY)) break;
 
-                        bool neighbourHasBlock = board.obstacle[startX - 1, startY] || (board.crates[startX - 1, startY] != null);
-                        bool targetBelowFree = !board.obstacle[nx, ny] && (board.crates[nx, ny] == null) && (board.gems[nx, ny] == null);
+                        bool neighbourHasBlock = board.crates[startX - 1, startY] != null;
+                        bool targetBelowFree = board.crates[nx, ny] == null && board.gems[nx, ny] == null;
 
                         if (neighbourHasBlock && targetBelowFree)
                         {
-                            board.gems[startX, startY].MoveTo(new Vector2Int(nx, ny));
+                            board.gems[startX, startY].SetTarget(new Vector2Int(nx, ny));
                             board.gems[nx, ny] = board.gems[startX, startY];
                             board.gems[startX, startY] = null;
 
                             startX = nx;
                             startY = ny;
                             currentGem = board.gems[startX, startY];
+                            iterations++;
                             continue;
                         }
 
@@ -162,7 +172,6 @@ namespace CandyProject
                 }
             }
 
-            // Sau khi rơi chéo xong, gọi lại CollapseVertical để đẩy xuống các cột nếu cần
             CollapseVertical(width, height);
         }
 
@@ -172,7 +181,7 @@ namespace CandyProject
         // Sinh gem làm đầy board
         private IEnumerator RefillingGem()
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return GameManager.Instance.delay;
 
             int width = board.Width;
             int height = board.Height;
@@ -182,7 +191,7 @@ namespace CandyProject
                 bool anySpawned = false;
                 for (int y = 0; y < height; y++)
                 {
-                    if (board.obstacle[x, y]) continue;
+                    if (board.blankSpaces[x, y]) continue;
 
                     if (board.crates[x, y]) continue;
 
@@ -194,27 +203,29 @@ namespace CandyProject
                         Vector2 worldPos = new Vector2(x, spawnY) * board.CellSize;
                         Vector2Int gridPos = new Vector2Int(x, y);
 
-                        GemData randomGem = board.GemDatas[
-                            Random.Range(0, board.GemDatas.Length - board.NumSpecials())
-                        ];
+                        int maxIndex = Mathf.Max(0, board.GemDatas.Length - board.NumSpecials());
+                        GemData randomGem = board.GemDatas[Random.Range(0, maxIndex)];
 
                         Gem newGem = board.CreateGem(worldPos, randomGem);
                         newGem.gridPos = gridPos;
-                        newGem.MoveTo(gridPos);
+                        newGem.SetTarget(gridPos);
 
                         board.gems[x, y] = newGem;
                     }
                 }
                 if (anySpawned)
                 {
-                    yield return new WaitForSeconds(0.1f);
+                    yield return GameManager.Instance.delay;
                 }
             }
 
-            yield return new WaitForSeconds(0.3f);
+            yield return board.StartCoroutine(board.MoveAllGemsCoroutine());
+
+            yield return GameManager.Instance.secondDelay;
+
             board.FindMatches();
 
-            yield return new WaitForSeconds(1f);
+            yield return GameManager.Instance.secondDelay;
 
             if (board.CheckDeadLock)
             {
@@ -222,8 +233,9 @@ namespace CandyProject
                 board.ShuffleBoard();
             }
 
-            yield return new WaitForSeconds(0.5f);
+            yield return GameManager.Instance.twoSecondDelay;
 
+            // Hoàn thành Level
             if (board.LevelManager.IsLevelComplete())
             {
                 board.LevelManager.HandleWinLevel();

@@ -8,6 +8,8 @@ namespace CandyProject
     public class BoardGenerator
     {
         private BoardManager board;
+
+        private List<Gem> tempGemList = new List<Gem>();
         public BoardGenerator(BoardManager board)
         {
             this.board = board;
@@ -28,7 +30,7 @@ namespace CandyProject
                         continue;
                     }
 
-                    if (board.obstacle[x, y])
+                    if (board.blankSpaces[x, y])
                     {
                         board.gems[x, y] = null;
                         continue;
@@ -51,7 +53,7 @@ namespace CandyProject
             {
                 if (tileKind.tileType == TileType.BlankSpace)
                 {
-                    board.obstacle[tileKind.posX, tileKind.posY] = true;
+                    board.blankSpaces[tileKind.posX, tileKind.posY] = true;
                 }
             }
         }
@@ -77,7 +79,9 @@ namespace CandyProject
         {
             Vector2 worldPos = (Vector2)gridPos * board.CellSize;
             GemData[] gems = board.GemDatas;
-            GemData randomGem = gems[Random.Range(0, gems.Length - board.NumSpecials())];
+
+            int maxIndex = Mathf.Max(0, board.GemDatas.Length - board.NumSpecials());
+            GemData randomGem = board.GemDatas[Random.Range(0, maxIndex)];
 
             GameObject obj = ObjectPoolManager.Instance.Get(board.GemPrefab);
             obj.transform.position = worldPos;
@@ -106,7 +110,7 @@ namespace CandyProject
 
         public void ShuffleBoard()
         {
-            List<Gem> newBoard = new List<Gem>();
+            tempGemList.Clear();
             int width = board.Width;
             int height = board.Height;
 
@@ -114,11 +118,11 @@ namespace CandyProject
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (board.gems[x, y] == null && board.obstacle[x, y]) continue;
+                    if (board.gems[x, y] == null && board.blankSpaces[x, y]) continue;
 
                     if (board.crates[x, y] != null) continue;
 
-                    newBoard.Add(board.gems[x, y]);
+                    tempGemList.Add(board.gems[x, y]);
                     
                 }
             }
@@ -127,20 +131,20 @@ namespace CandyProject
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (!board.obstacle[x, y] && board.gems[x, y] != null)
+                    if (!board.blankSpaces[x, y] && board.gems[x, y] != null)
                     {
-                        int randomGem = Random.Range(0, newBoard.Count);
+                        int randomGem = Random.Range(0, tempGemList.Count);
 
-                        while (MatchesAt(x, y, newBoard[randomGem]))
+                        while (MatchesAt(x, y, tempGemList[randomGem]))
                         {
-                            randomGem = Random.Range(0, newBoard.Count);
+                            randomGem = Random.Range(0, tempGemList.Count);
                         }
 
-                        Gem gem = newBoard[randomGem];
+                        Gem gem = tempGemList[randomGem];
                         if (gem == null) continue;
 
                         board.SwapGem(gem, board.gems[x, y]);
-                        newBoard.Remove(gem);
+                        tempGemList.Remove(gem);
                     }
                 }
             }
@@ -153,7 +157,7 @@ namespace CandyProject
 
         private IEnumerator WaitShuffleBoard()
         {
-            yield return new WaitForSeconds(1f);
+            yield return GameManager.Instance.secondDelay;
             ShuffleBoard();
         }
 

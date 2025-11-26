@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 namespace CandyProject
 {
@@ -14,15 +13,20 @@ namespace CandyProject
 
         [SerializeField] private GemData[] bombSlotAvailable;
 
-        [SerializeField] private Dictionary<GemData, int> boosters = new ();
+        [SerializeField] private Dictionary<GemData, int> boosters = new();
 
         public Dictionary<GemData, int> BoostersIV => boosters;
 
         private void Start()
         {
+            GameManager.Instance.LoadResources();
+
             foreach (var gem in bombSlotAvailable)
             {
-                boosters.Add (gem, 0);
+                if (!boosters.ContainsKey(gem))
+                {
+                    boosters.Add(gem, 0);
+                }
             }
         }
 
@@ -79,6 +83,29 @@ namespace CandyProject
 
             var quantity = boosters[gem] - 1;
             boosters[gem] = Mathf.Max(0, quantity);
+        }
+
+        public void SetHealth(int quantity)
+        {
+            currentHealth = Mathf.Min(quantity, 5);
+        }
+
+        public void SetGold(int quantity)
+        {
+            currentGold = quantity;
+        }
+
+        public void SetBoosterIV(Dictionary<GemData, int> boos)
+        {
+            boosters.Clear();
+
+            if (boos != null)
+            {
+                foreach (var item in boos)
+                {
+                    boosters.Add(item.Key, item.Value);
+                }
+            }
         }
 
         //Getter

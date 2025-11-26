@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace CandyProject
 {
@@ -19,7 +17,7 @@ namespace CandyProject
 
         public IEnumerator CreateBooms(List<MatchInfo> matchInfos)
         {
-            yield return new WaitForSeconds(0.1f);
+            yield return GameManager.Instance.secondDelay;
 
             foreach (MatchInfo matchInfo in matchInfos)
             {
@@ -187,14 +185,12 @@ namespace CandyProject
 
         private IEnumerator AnimateClearance(Vector2Int pos, Vector2Int dir)
         {
-            float delayPerGem = 0.05f;
-
             while (board.IsInsideBoard(pos))
             {
                 ClearOneGem(pos);
 
                 pos += dir;
-                yield return new WaitForSeconds(delayPerGem);
+                yield return GameManager.Instance.delay;
             }
 
             board.CollapsingGem();
@@ -211,8 +207,8 @@ namespace CandyProject
                 board.LevelManager.AddScore(gem.GetGemData.scoreValue);
                 board.LevelManager.ReduceGemGoal(gem);
 
+                gem.isMoving = false;
                 gem.ReturnPoolGem(board.GemPrefab);
-
                 board.gems[pos.x, pos.y] = null;
             }
 

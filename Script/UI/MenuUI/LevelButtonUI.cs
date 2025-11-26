@@ -43,7 +43,7 @@ namespace CandyProject
                 Debug.LogWarning("LevelProgress data is null.");
             }
 
-            levelText.text = index.ToString();
+            levelText.SetText("{0}", index);
 
             for (int i = 0; i < stars.Length; i++)
             {

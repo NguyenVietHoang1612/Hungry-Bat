@@ -28,7 +28,7 @@ namespace CandyProject
             shopManager = manager;
 
             itemIcon.sprite = shopItemData.bombData.GetSprite();
-            price.text = shopItemData.price.ToString();
+            price.SetText("{0}", shopItemData.price);
 
             buyButton.onClick.RemoveAllListeners();
             buyButton.onClick.AddListener(OnBuyButtonClicked);

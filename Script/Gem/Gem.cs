@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -11,6 +13,7 @@ namespace CandyProject
 
         protected VisualEffect VisualEffect;
         public Vector2Int gridPos;
+        public Vector2Int targetGridPos;
         public bool isVertical;
         [Header("Flags")]
         public bool isMatch = false;
@@ -19,11 +22,12 @@ namespace CandyProject
         [SerializeField] private float moveSpeed = 6f;
 
         public int health = 1;
+        private int sorterLayer;
         private void Start()
         {
             
             if (gemData != null && gemData.destroyEffect != null)
-                ObjectPoolManager.Instance.CreatePool(gemData.destroyEffect, 3);
+                ObjectPoolManager.Instance.CreatePool(gemData.destroyEffect, 64);
         }
 
         public virtual void Init(GemData data)
@@ -32,6 +36,7 @@ namespace CandyProject
             spriteRenderer.sprite = gemData.GetSprite();
             spriteRenderer.color = Color.white;
             name = data.gemName;
+            sorterLayer = spriteRenderer.sortingOrder;
 
             if (gemData.IsBoom && gemData.gemType == GemType.ArrowVertical)
             {
@@ -40,29 +45,11 @@ namespace CandyProject
             isMatch = false;
         }
 
-        #region Handle Match
-        //public virtual void Damage(int amount)
-        //{
-        //    height-=amount;
-
-        //    if (height <= 0)
-        //    {
-        //        PlayDestroyEffect();
-        //        ReturnToPoolWithDelay();
-        //    }
-        //}
-
-        //protected void ReturnToPoolWithDelay()
-        //{
-        //    GameManager.Instance.StartCoroutine(ReturnGemRoutine());
-        //}
-
-        //protected IEnumerator ReturnGemRoutine()
-        //{
-        //    yield return new WaitForSeconds(0.2f);
-        //    ReturnPoolGem(GameManager.Instance.Board.GemPrefab);
-        //}
-        #endregion
+        public void SetTarget(Vector2Int targetPos)
+        {
+            targetGridPos = targetPos;
+            isMoving = true;
+        }
 
         public void MoveTo(Vector2Int targetPos)
         {
@@ -91,13 +78,17 @@ namespace CandyProject
 
         public void MoveGemtoCondition(Vector2 uiWorldPos)
         {
-            StartCoroutine(MoveToUIRoutine(uiWorldPos));
+            if (uiWorldPos != null)
+            {
+                StartCoroutine(MoveToUIRoutine(uiWorldPos));
+            }
+            
         }
 
         private IEnumerator MoveToUIRoutine(Vector2 uiWorldPos)
         {
+            
             isMoving = true;
-
             Vector3 start = transform.position;
             Vector3 target = new Vector3(uiWorldPos.x, uiWorldPos.y, 0);
 
@@ -119,20 +110,27 @@ namespace CandyProject
 
         public void PlayDestroyEffect()
         {
-            if (gemData == null || gemData.destroyEffect == null) return;
+            if (GameManager.Instance.Effects)
+            {
+                if (gemData == null || gemData.destroyEffect == null) return;
 
-            GameObject fx = ObjectPoolManager.Instance.Get(gemData.destroyEffect);
-            VisualEffect = fx.GetComponentInChildren<VisualEffect>();
-            VisualEffect.Play();
-            SoundManager.Instance.PlayOneShotSfx(gemData.destroySound);
-            fx.transform.position = transform.position;
-            fx.transform.rotation = Quaternion.identity;
-            GameManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 1.3f));
+                GameObject fx = ObjectPoolManager.Instance.Get(gemData.destroyEffect);
+                VisualEffect = fx.GetComponentInChildren<VisualEffect>();
+                fx.transform.position = transform.position;
+                fx.transform.rotation = Quaternion.identity;
+
+                VisualEffect.Play();
+                SoundManager.Instance.PlayOneShotSfx(gemData.destroySound);
+
+                GameManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect));
+            }
+            
         }
 
-        protected IEnumerator ReturnEffectToPoolRoutine(GameObject fx, GameObject prefab, float delay)
+
+        protected IEnumerator ReturnEffectToPoolRoutine(GameObject fx, GameObject prefab)
         {
-            yield return new WaitForSeconds(delay);
+            yield return GameManager.Instance.halfSecondDelay;
             ObjectPoolManager.Instance.Return(prefab, fx);
         }
 
@@ -147,6 +145,7 @@ namespace CandyProject
             while (isMoving)
                 yield return null;
 
+            spriteRenderer.sortingOrder = sorterLayer;
             ObjectPoolManager.Instance.Return(prefab, gameObject);
         }
 

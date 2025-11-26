@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,8 +19,7 @@ namespace CandyProject
         {
             gemData = data;
             itemIcon.sprite = gemData.GetSprite();
-            quantityText.text = quantity.ToString();
-
+            quantityText.SetText("{0}", quantity);
             useSlot.onClick.AddListener(() =>
             {
                 InputManager.Instance.EnterUseItemMode(gemData);

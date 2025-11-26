@@ -56,7 +56,7 @@ namespace CandyProject
             SoundManager.Instance.PlayOneShotSfx(gemData.destroySound);
             fx.transform.position = transform.position;
             fx.transform.rotation = Quaternion.identity;
-            GameManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect, 1.3f));
+            GameManager.Instance.StartCoroutine(ReturnEffectToPoolRoutine(fx, gemData.destroyEffect));
         }
     }
 }

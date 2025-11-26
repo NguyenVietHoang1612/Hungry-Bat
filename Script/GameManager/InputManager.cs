@@ -24,8 +24,6 @@ namespace CandyProject
         [SerializeField] private Gem selectedGem;
 
 
-        [SerializeField] float timeMove = 0.1f;
-
         [SerializeField] HintManager hintManager;
 
         [field: SerializeField] public InputMode Mode { get; private set; } = InputMode.Normal;
@@ -121,7 +119,7 @@ namespace CandyProject
             if (dragDir.magnitude > dragThreshold)
             {
                 Vector2Int moveDir = GetMoveDirection(dragDir);
-                GameManager.Instance.Board.TrySwap(selectedGem, moveDir, timeMove);
+                GameManager.Instance.Board.TrySwap(selectedGem, moveDir);
             }
 
             isDragging = false;
@@ -149,7 +147,7 @@ namespace CandyProject
             
 
             if (board.crates[grid.x, grid.y] != null) return;
-            if (board.obstacle[grid.x, grid.y]) return;
+            if (board.blankSpaces[grid.x, grid.y]) return;
            
 
             Gem oldGem = board.gems[grid.x, grid.y];

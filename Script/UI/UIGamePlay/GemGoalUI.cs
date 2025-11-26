@@ -57,7 +57,7 @@ namespace CandyProject
                 var requireAmount = gemGoalGO.GetComponentInChildren<TMP_Text>();
                 
                 imageGemGoal.sprite = goal.gemData.GetSprite();
-                requireAmount.text = goal.requiredAmount.ToString();
+                requireAmount.SetText("{0}", goal.requiredAmount);
                 gemGoalsText.Add(requireAmount);
 
             }
@@ -69,14 +69,16 @@ namespace CandyProject
             {
                 var quantityLabel = gemGoalsText[i];
                 var rect = quantityLabel.rectTransform;
-                Vector3 worlPos = Camera.main.ScreenToWorldPoint(rect.position);
+
+                Vector3 worldPos = rect.position;
 
                 if (gem != null)
                 {
-                    gem.MoveGemtoCondition(worlPos);
+                    if (gem.TypeOfGem != GemType.Crate)
+                        gem.MoveGemtoCondition(worldPos);
                 }
-               
-                quantityLabel.text = gemGoals[i].requiredAmount.ToString();
+
+                quantityLabel.SetText("{0}", gemGoals[i].requiredAmount);
             }
         }
 

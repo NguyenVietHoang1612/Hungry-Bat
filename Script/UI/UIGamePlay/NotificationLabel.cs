@@ -17,7 +17,6 @@ namespace CandyProject
         [SerializeField] LevelManager levelManager;
 
         [SerializeField] private float duration = 0.5f;
-        [SerializeField] private float durationMove = 2f;
         private Vector2 startPoint;
         [SerializeField] private Vector2 endPoint;
 
@@ -46,7 +45,7 @@ namespace CandyProject
                 Image gemRequireImage = gemRequieObj.GetComponent<Image>();
                 gemRequireImage.sprite = gemRequire[i].gemData.GetSprite();
                 TMP_Text amountRequire = gemRequireImage.GetComponentInChildren<TMP_Text>();
-                amountRequire.text = gemRequire[i].requiredAmount.ToString();
+                amountRequire.SetText("{0}", gemRequire[i].requiredAmount);
             }
         }
 
@@ -81,7 +80,7 @@ namespace CandyProject
 
         private IEnumerator WaitForSecondNotification()
         {
-            yield return new WaitForSeconds(durationMove);
+            yield return GameManager.Instance.twoSecondDelay;
             MovePanelToStart();
         }
 

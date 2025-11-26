@@ -45,7 +45,7 @@ namespace CandyProject
 
         [Header("Runtime Data")]
         public Gem[,] gems;
-        public List<Vector2Int> matches;
+        public List<Vector2Int> matches = new List<Vector2Int>();
         //public Transform boardTileTransform;
 
         [Header("Subsystems")]
@@ -55,13 +55,15 @@ namespace CandyProject
         private BoomHandler boomHandler;
         private RefillSystem refillSystem;
 
-        [Header("Tile Gem Bonus")]
-        public bool[,] obstacle;
+        [Header("Tile Gem")]
+        public bool[,] blankSpaces;
         public TileKind[] tileKinds;
         public Crate[,] crates;
 
         [Header("Level Manager")]
         public LevelManager LevelManager { get; private set; }
+
+        private List<Gem> tempValidGems = new List<Gem>();
 
         private void Start()
         {
@@ -76,10 +78,10 @@ namespace CandyProject
             width = LevelManager.LevelData.width;
             height = LevelManager.LevelData.height;
 
+            int lenght = LevelManager.LevelData.tileKinds.Length;
+            tileKinds = new TileKind[lenght];
 
-            tileKinds = new TileKind[LevelManager.LevelData.tileKinds.Count()];
-
-            for(int i = 0; i < tileKinds.Count(); i++)
+            for(int i = 0; i < tileKinds.Length; i++)
             {
                 tileKinds[i] = new TileKind(
                     LevelManager.LevelData.tileKinds[i].posX, 
@@ -89,14 +91,14 @@ namespace CandyProject
 
 
             gems = new Gem[width, height];
-            obstacle = new bool[width, height];
+            blankSpaces = new bool[width, height];
             crates = new Crate[width, height];
 
-            for (int i = 0; i < obstacle.GetLength(0); i++)
+            for (int i = 0; i < blankSpaces.GetLength(0); i++)
             {
-                for (int j = 0; j < obstacle.GetLength(1); j++)
+                for (int j = 0; j < blankSpaces.GetLength(1); j++)
                 {
-                    obstacle[i, j] = false;
+                    blankSpaces[i, j] = false;
                 }
             }
 
@@ -193,7 +195,7 @@ namespace CandyProject
 
         public GemType GetRandomGemType()
         {
-            List<Gem> validGems = new List<Gem>();
+            tempValidGems.Clear();
 
             for (int x = 0; x < Width; x++)
             {
@@ -202,20 +204,60 @@ namespace CandyProject
                     Gem g = gems[x, y];
                     if (g != null && !g.GetGemData.IsBoom)
                     {
-                        validGems.Add(g);
+                        tempValidGems.Add(g);
                     }
                 }
             }
 
-            if (validGems.Count == 0)
+            if (tempValidGems.Count == 0)
                 return GemType.Red;
 
-            int randomIndex = UnityEngine.Random.Range(0, validGems.Count);
-            return validGems[randomIndex].TypeOfGem;
+            int randomIndex = UnityEngine.Random.Range(0, tempValidGems.Count);
+            return tempValidGems[randomIndex].TypeOfGem;
         }
 
-        public void TrySwap(Gem gem, Vector2Int dir, float timeReturn) =>
-            swapSystem.TrySwap(gem, dir, timeReturn);
+        public IEnumerator MoveAllGemsCoroutine(float moveSpeed = 12f)
+        {
+            bool anyMoving;
+
+            do
+            {
+                anyMoving = false;
+
+                for (int x = 0; x < width; x++)
+                {
+                    for (int y = 0; y < height; y++)
+                    {
+                        Gem gem = gems[x, y];
+
+                        if (blankSpaces[x, y]) continue;
+                        if (crates[x, y]) continue;
+
+                        if (gem != null && gem.isMoving)
+                        {
+                            anyMoving = true;
+                            Vector3 start = gem.transform.position;
+                            Vector3 target = new Vector3(gem.targetGridPos.x, gem.targetGridPos.y, 0) * cellSize;
+
+                            gem.transform.position = Vector3.MoveTowards(start, target, moveSpeed * Time.deltaTime);
+
+                            if (Vector3.Distance(gem.transform.position, target) < 0.01f)
+                            {
+                                gem.transform.position = target;
+                                gem.gridPos = gem.targetGridPos;
+                                gem.isMoving = false;
+                            }
+                        }
+                    }
+                }
+
+                yield return null;
+
+            } while (anyMoving);
+        }
+
+        public void TrySwap(Gem gem, Vector2Int dir) =>
+            swapSystem.TrySwap(gem, dir);
 
         public void SwapGem(Gem gemA, Gem gemB) =>
             swapSystem.SwapGems(gemA, gemB);

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -15,6 +15,8 @@ namespace CandyProject
         [SerializeField] private Transform levelGoalContainer;
         [SerializeField] private Transform boosterContainer;
         [SerializeField] private CanvasGroup canvasGroup;
+
+        private List<GemData> tempBoostersList = new List<GemData>();
 
         private void Start()
         {
@@ -46,15 +48,15 @@ namespace CandyProject
         {
             currentLevelText.text = levelData.levelName;
             
-            List<GemData> boostersAvailable = ResourceManager.Instance.BoostersIV.Keys.ToList();
+            tempBoostersList.AddRange(ResourceManager.Instance.BoostersIV.Keys);
 
-            // Setup Booster
             for (int i = 0; i < boosterContainer.childCount; i++)
             {
-                InventorySlot slot =  boosterContainer.GetChild(i).GetComponent<InventorySlot>();
+                InventorySlot slot = boosterContainer.GetChild(i).GetComponent<InventorySlot>();
                 if (slot != null)
                 {
-                    slot.SetUp(boostersAvailable[i], ResourceManager.Instance.BoostersIV[boostersAvailable[i]]);
+                    GemData currentGem = tempBoostersList[i];
+                    slot.SetUp(currentGem, ResourceManager.Instance.BoostersIV[currentGem]);
                 }
             }
 
@@ -65,7 +67,7 @@ namespace CandyProject
                 TMP_Text quantityRequire = gemGoalIg.GetComponentInChildren<TMP_Text>();
 
                 gemGoalIg.sprite = levelData.gemGoalDatas[i].gemData.GetSprite();
-                quantityRequire.text = levelData.gemGoalDatas[i].requiredAmount.ToString();
+                quantityRequire.SetText("{0}", levelData.gemGoalDatas[i].requiredAmount);
                 gemGoalIg.gameObject.SetActive(true);
             }
         }

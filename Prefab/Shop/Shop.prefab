@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3050289196772566436}
   - component: {fileID: 1696924279877941031}
   - component: {fileID: 2637028425838919391}
+  - component: {fileID: 4236127667286724807}
   m_Layer: 5
   m_Name: Shop
   m_TagString: Untagged
@@ -105,6 +106,18 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &4236127667286724807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4688940048965282272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4315cf7215449a4f8c335934193f15f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6647231622206383988
 GameObject:
   m_ObjectHideFlags: 0

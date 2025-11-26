@@ -30,7 +30,7 @@ MonoBehaviour:
     posY: 0
     tileType: 0
   targetScore: 200
-  movesLimit: 15
+  movesLimit: 25
   hasTimeLimit: 0
   timeLimit: 0
   gemGoalDatas:

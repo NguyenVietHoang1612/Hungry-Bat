@@ -14,6 +14,9 @@ namespace CandyProject
         [SerializeField] TMP_Text remainingMoves;
         [SerializeField] Slider scoreSlider;
         [SerializeField] Image[] stars;
+
+        private StarAnim[] starAnims;
+        private bool[] starAchieved;
         private void Start()
         {
             InitUI();
@@ -29,6 +32,8 @@ namespace CandyProject
 
             levelManager.OnScoreChanged += UpdateScoreUI;
             levelManager.OnMoveRemainingUpdated += UpdateRemainingMoveUI;
+            levelManager.OnStarChanged += UpdateStarUI;
+
         }
 
         private void OnDisable()
@@ -39,41 +44,41 @@ namespace CandyProject
 
         private void UpdateScoreUI(int currentScore)
         {
-            scoreAmount.text = currentScore.ToString();
-            
+            scoreAmount.SetText("{0}", currentScore);
             SetSlider(currentScore);
+        }
 
-            for (int i = 0; i < stars.Length; i++)
+        private void UpdateStarUI(int newStarLevel)
+        {
+            int starIndexToAnimate = newStarLevel - 1;
+
+            if (starIndexToAnimate >= 0 && starIndexToAnimate < starAnims.Length)
             {
-                var hasStar = i < levelManager.StarLevel;
-                
-                if (hasStar)
+                if (starAnims[starIndexToAnimate] != null)
                 {
-                    stars[i].color = Color.white;
-                }
-                else
-                {
-                    stars[i].color = Color.black;
+                    starAnims[starIndexToAnimate].PlayAnimStar();
                 }
             }
         }
 
         private void UpdateRemainingMoveUI()
         {
-            remainingMoves.text = levelManager.RemainingMoves.ToString();
+            remainingMoves.SetText("{0}", levelManager.RemainingMoves);
         }
 
         private void InitUI()
         {
+            scoreAmount.SetText("0");
+            remainingMoves.SetText("{0}", levelManager.RemainingMoves);
             scoreSlider.maxValue = levelManager.LevelData.targetScore;
-            scoreSlider.value = 0;
-            remainingMoves.text = levelManager.RemainingMoves.ToString();
+            starAnims = new StarAnim[stars.Length];
+            starAchieved = new bool[stars.Length];
 
-            foreach (var star in stars)
+            for (int i = 0; i < stars.Length; i++)
             {
-                star.color = Color.black;
+                starAnims[i] = stars[i].GetComponent<StarAnim>();
+                starAchieved[i] = false;
             }
-
         }
 
         private void SetSlider(int currentScore)

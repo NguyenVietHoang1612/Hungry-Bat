@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -66,7 +65,7 @@ namespace CandyProject
                 loseIcon.gameObject.SetActive(false);
                 starsContainer.gameObject.SetActive(true);
                 goldRewardTransform.gameObject.SetActive(true);
-                goldAmount.text = levelManager.LevelData.gold.ToString();
+                goldAmount.SetText("{0}", levelManager.LevelData.gold);
 
                 for (int i = 0; i < Stars.Length; i++)
                 {
@@ -78,8 +77,8 @@ namespace CandyProject
                 }
 
                 textResult.text = "COMPLETE!";
-            }         
-            scoreAmount.text = levelManager.CurrentScore.ToString();
+            }
+            scoreAmount.SetText("{0}", levelManager.CurrentScore);
         }
 
         public void MovePanelStart()
@@ -125,7 +124,7 @@ namespace CandyProject
 
         private IEnumerator WaitResetLevel()
         {
-            yield return new WaitForSeconds(1f);
+            yield return GameManager.Instance.oneSecondDelay;
             GameManager.Instance.RestartLevel();
         }
 

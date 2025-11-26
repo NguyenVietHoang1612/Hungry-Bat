@@ -8,7 +8,8 @@ namespace CandyProject
         private readonly BoardManager board;
         private readonly BoomHandler boomHandler;
 
-        private List<MatchInfo> matchInfos;
+        private List<MatchInfo> matchInfos = new List<MatchInfo>();
+        List<Vector2Int> chain = new List<Vector2Int>();
 
         private bool[,] visited;
 
@@ -16,6 +17,8 @@ namespace CandyProject
         {
             board = boardManager;
             this.boomHandler = boomHandler;
+
+            visited = new bool[board.Width, board.Height];
         }
 
         public void FindMatchGems()
@@ -25,11 +28,11 @@ namespace CandyProject
             int width = board.Width;
             int height = board.Height;
 
-            visited = new bool[width, height];
             ResetGemMatchState(allGems);
 
-            matchInfos = new List<MatchInfo>();
-            board.matches = new List<Vector2Int>();
+            ResetVisited();
+            matchInfos.Clear();
+            board.matches.Clear();
 
             int horizontalCount = ScanByDirection(Vector2Int.right);
             int verticalCount = ScanByDirection(Vector2Int.up);
@@ -49,7 +52,7 @@ namespace CandyProject
             int width = board.Width;
             int height = board.Height;
 
-            visited = new bool[width, height];
+            ResetVisited();
 
             for (int x = 0; x < width; x++)
             {
@@ -75,7 +78,7 @@ namespace CandyProject
         // Lấy danh sách các viên cùng loại nối liền nhau
         private List<Vector2Int> GetSameGemChain(Vector2Int startPos, Vector2Int direction, GemType gemType)
         {
-            List<Vector2Int> chain = new List<Vector2Int>();
+            chain.Clear();
 
             for (Vector2Int pos = startPos; IsValidPosition(pos, gemType); pos += direction)
             {
@@ -153,6 +156,22 @@ namespace CandyProject
             if (matchInfos.Count > 0)
             { 
                 board.StartCoroutine(boomHandler.CreateBooms(matchInfos));
+            }
+        }
+
+        private void ResetVisited()
+        {
+            if (visited == null || visited.GetLength(0) != board.Width || visited.GetLength(1) != board.Height)
+            {
+                visited = new bool[board.Width, board.Height];
+            }
+
+            for (int x = 0; x < board.Width; x++)
+            {
+                for (int y = 0; y < board.Height; y++)
+                {
+                    visited[x, y] = false;
+                }
             }
         }
 

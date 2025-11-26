@@ -8,7 +8,6 @@ namespace CandyProject
     {
         [Header("Hint Settings")]
         [SerializeField] private float hintDelay = 10f;
-        [SerializeField] private float resetHintTime = 3f;
         [SerializeField] private GameObject hintEffect;
 
         private float hintTimer;
@@ -79,7 +78,7 @@ namespace CandyProject
 
         private IEnumerator DisableHintAfterDelay(GameObject hintObj)
         {
-            yield return new WaitForSeconds(resetHintTime);
+            yield return GameManager.Instance.twoSecondDelay;
             ObjectPoolManager.Instance.Return(hintEffect, hintObj);
             currentHint = null;
             hintTimer = hintDelay;
