@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c529b2cfadfe15742ad7f31bee24ec06, type: 3}
+  m_Name: Level1
+  m_EditorClassIdentifier: 
+  levelIndex: 1
+  levelName: Level 1
+  width: 8
+  height: 8
+  tileKinds:
+  - posX: 7
+    posY: 0
+    tileType: 0
+  - posX: 7
+    posY: 7
+    tileType: 0
+  - posX: 0
+    posY: 7
+    tileType: 0
+  - posX: 0
+    posY: 0
+    tileType: 0
+  targetScore: 200
+  movesLimit: 25
+  hasTimeLimit: 0
+  timeLimit: 0
+  gemGoalDatas:
+  - gemData: {fileID: 11400000, guid: 96ce1c0f37b747c41844487b6e149354, type: 2}
+    requiredAmount: 6
+  - gemData: {fileID: 11400000, guid: b66db7081a34af545bf09a3ddd04ecb7, type: 2}
+    requiredAmount: 6
+  oneStarScore: 40
+  twoStarScore: 110
+  threeStarScore: 185
+  gold: 10
